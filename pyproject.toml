@@ -1,0 +1,18 @@
+[build-system]
+requires = ["flit_core >=2.0.0.rc1,<3"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.metadata]
+module = "vendoring"
+author = "Pradyun Gedam"
+author-email = "pradyunsg@gmail.com"
+home-page = "https://github.com/pradyunsg/vendoring"
+classifiers = ["License :: OSI Approved :: MIT License"]
+requires = [
+  "click",
+  "toml",
+]
+requires-python = "~= 3.8.0"
+
+[tool.flit.scripts]
+vendoring = "vendoring.cli:main"
