@@ -1,0 +1,27 @@
+name: Linting
+on:
+  push:
+  pull_request:
+
+jobs:
+  linters:
+    name: pre-commit checks
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+
+    - name: Pre-configure global Git settings
+      run: |
+        git config --global user.email "pradyunsg+githubactions@gmail.com"
+        git config --global user.name "Github Action - Lint"
+
+    - name: Install pre-commit
+      run: python -m pip install pre-commit
+
+    - name: Run pre-commit
+      run: pre-commit run --all-files
