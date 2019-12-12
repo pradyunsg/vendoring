@@ -1,16 +1,6 @@
 """Logic for cleaning up already vendored files.
 """
 
-import shutil
-
-
-def remove_all(items_to_cleanup):
-    for item in items_to_cleanup:
-        if item.is_dir():
-            shutil.rmtree(str(item))
-        else:
-            item.unlink()
-
 
 def determine_items_to_remove(target_dir, *, files_to_skip):
     if not target_dir.exists():

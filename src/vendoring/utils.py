@@ -1,7 +1,16 @@
 import shlex
+import shutil
 import subprocess
 
 from vendoring.ui import UI
+
+
+def remove_all(items_to_cleanup):
+    for item in items_to_cleanup:
+        if item.is_dir():
+            shutil.rmtree(str(item))
+        else:
+            item.unlink()
 
 
 def run(command, *, working_directory):

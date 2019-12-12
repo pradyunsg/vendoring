@@ -3,9 +3,9 @@
 
 import re
 
-from vendoring.utils import run
-from vendoring.tasks.cleanup import remove_all as _remove_all
 from vendoring.ui import UI
+from vendoring.utils import remove_all as _remove_all
+from vendoring.utils import run
 
 
 def download_libraries(requirements_path, target_dir):
