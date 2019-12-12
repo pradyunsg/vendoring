@@ -2,32 +2,10 @@
 """
 
 import re
-import shlex
-import subprocess
 
+from vendoring.utils import run
 from vendoring.tasks.cleanup import remove_all as _remove_all
 from vendoring.ui import UI
-
-
-def _run_process(command, *, working_directory):
-    UI.log("Running {}".format(" ".join(map(shlex.quote, command))))
-    p = subprocess.Popen(
-        command,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        encoding="utf-8",
-        cwd=working_directory,
-    )
-    while True:
-        retcode = p.poll()
-        line = p.stdout.readline().rstrip()
-
-        if line:
-            with UI.indent():
-                UI.log(line)
-
-        if retcode is not None:
-            break
 
 
 def download_libraries(requirements_path, target_dir):
@@ -43,7 +21,7 @@ def download_libraries(requirements_path, target_dir):
         # This includes all dependencies recursively up the chain.
         "--no-deps",
     ]
-    _run_process(command, working_directory=None)
+    run(command, working_directory=None)
 
 
 def remove_unnecessary_items(target_dir, drop_paths):
@@ -116,7 +94,7 @@ def detect_vendored_libs(target_dir, files_to_skip):
 
 
 def _apply_patch(patch_file_path, working_directory):
-    _run_process(
+    run(
         ["git", "apply", "--verbose", str(patch_file_path)],
         working_directory=working_directory,
     )
