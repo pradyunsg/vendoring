@@ -108,19 +108,13 @@ def extract_license(target_dir, sdist, license_directories, license_fallback_url
         ext = sdist.suffixes[-1][1:]
         with tarfile.open(sdist, mode="r:{}".format(ext)) as tar:
             return find_and_extract_license(
-                target_dir,
-                tar,
-                tar.getmembers(),
-                license_directories,
+                target_dir, tar, tar.getmembers(), license_directories,
             )
 
     def extract_from_source_zipfile(sdist):
         with zipfile.ZipFile(sdist) as zip:
             return find_and_extract_license(
-                target_dir,
-                zip,
-                zip.infolist(),
-                license_directories,
+                target_dir, zip, zip.infolist(), license_directories,
             )
 
     if sdist.suffixes[-2] == ".tar":
