@@ -36,7 +36,9 @@ class Configuration:
     # Whether licenses should be included
     include_licenses: bool
     # Fallbacks for licenses that can't be found
-    license_fallbacks: Dict[str, str]
+    license_fallback_urls: Dict[str, str]
+    # Alternate directory names, where distribution name differs the installed name
+    license_directories: Dict[str, str]
 
     # Whether typing stub files (.pyi) should be generated
     include_stubs: bool
@@ -89,7 +91,7 @@ class Configuration:
 
         def dict_wrapper(value_processor):
             def checker(di):
-                for key in di.keys():
+                for key in list(di.keys()):
                     di[key] = value_processor(key, di)
                 return di
 
@@ -131,7 +133,8 @@ class Configuration:
             "additional_import_substitutions": "list_of_list_of_str",
             "drop_paths": "list_of_str",
             "include_licenses": "bool",
-            "license_fallbacks": "dict_str",
+            "license_fallback_urls": "dict_str",
+            "license_directories": "dict_str",
             "include_stubs": "bool_true",
             "stub_overrides": "dict_list_of_str",
         }
