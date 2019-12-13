@@ -1,12 +1,12 @@
 # vendoring
 
-CLI tool for making vendoring dependencies in Python projects easier
+A command line tool, to simplify vendoring pure Python dependencies.
 
 ## Why?
 
-pip had a home-grown setup for vendoring dependencies and it has grown a lot in complexity over time.
+pip had a "home-grown" setup for vendoring dependencies. The `invoke` task grew in complexity to over 500 lines and, at some point, became extremely difficult to improve and maintain.
 
-This tool was built by moving the dependency vendoring logic, into a dedicated codebase. This allows for independent evolution of this codebase and better infrastructure to ensure it's working properly.
+This tool is based off the overgrown `invoke` task, breaking it out into a dedicated codebase with the goal of making it more maintainable and reusable. This also enabled independent evolution of this codebase and better access to infrastructure (like dedicated CI) to ensure it keeps working properly.
 
 ## Contributing
 
