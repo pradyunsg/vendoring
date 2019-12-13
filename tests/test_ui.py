@@ -59,30 +59,6 @@ def test_works_when_no_ui(ui):
     ui._log.assert_any_call("Task Name... ", nl=False)
 
 
-def test_shows_task_log_shown_on_failure_when_silent(ui):
-    with pytest.raises(RuntimeError):
-        with ui.task("Task Name"):
-            ui.log("blah")
-            raise RuntimeError("this is expected.")
-
-    ui._log.assert_any_call("  blah")
-
-
-def test_task_log_does_not_overflow_on_failure(ui):
-    with ui.task("Task one"):
-        ui.log("blah one")
-
-    assert mock.call("  blah one") not in ui._log.call_args_list
-
-    with pytest.raises(RuntimeError):
-        with ui.task("Task two"):
-            ui.log("blah two")
-            raise RuntimeError("this is expected.")
-
-    assert mock.call("  blah two") in ui._log.call_args_list
-    assert mock.call("  blah one") not in ui._log.call_args_list
-
-
 def test_task_shows_spinner_when_silent(ui):
     with ui.task("Task Name"):
         ui.log("blah")
