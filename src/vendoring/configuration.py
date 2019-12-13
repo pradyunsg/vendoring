@@ -3,7 +3,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple, cast
 
 from toml import TomlDecodeError
 from toml import loads as parse_toml
@@ -29,7 +29,7 @@ class Configuration:
     # Location to ``.patch` files to apply after vendoring
     patches_dir: Path
     # Additional substitutions to be made for imports
-    additional_import_substitutions: List[str]
+    additional_import_substitutions: List[Tuple[str, str]]
     # Additional substitutions to be made for imports
     target_drop_paths: List[str]
 
@@ -79,10 +79,18 @@ class Configuration:
 
             return path
 
-        def list_of_list_of_str_wrapper(value):
+        def list_of_tuple_with_two_str_wrapper(
+            value: List[List[str]],
+        ) -> List[Tuple[str, str]]:
+            retval = []
             for elem in value:
                 list_of_str_wrapper(elem)
-            return value
+                if len(elem) != 2:
+                    raise ConfigurationError(
+                        f"Expected exactly 2 values in tuple, got {len(elem)}."
+                    )
+                retval.append(cast(Tuple[str, str], tuple(elem)))
+            return retval
 
         def list_of_str_wrapper(value):
             if not all(isinstance(elem, str) for elem in value):
