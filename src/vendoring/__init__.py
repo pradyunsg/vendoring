@@ -4,4 +4,4 @@
 # WARNING: vendoring is a CLI-only tool. DO NOT `import vendoring` or anything
 #          within this namespace.
 
-__version__ = "0.1.0a0"
+__version__ = "0.1.0"
