@@ -1,0 +1,26 @@
+name: nox
+on:
+  push:
+  pull_request:
+
+jobs:
+  all:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+
+    steps:
+    - name: Pre-configure global Git settings
+      run: |
+        git config --global user.email "pradyunsg+githubactions@gmail.com"
+        git config --global user.name "GitHub Action - vendoring"
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit-${{ matrix.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+    - uses: actions/checkout@v1
+    - uses: excitedleigh/setup-nox@0.1.0
+    - run: nox
