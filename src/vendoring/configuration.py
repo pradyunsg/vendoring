@@ -46,7 +46,7 @@ class Configuration:
     stub_overrides: Dict[str, List[str]]
 
     @classmethod
-    def load_from_dict(cls, dictionary, *, location):
+    def load_from_dict(cls, dictionary, *, location) -> "Configuration":
         """Constructs a Configuration, validating the values in `dictionary`, expecting paths to be within `location`.
         """
 
