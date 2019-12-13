@@ -1,6 +1,8 @@
 """Logic for cleaning up already vendored files.
 """
 
+from vendoring.utils import remove_all
+
 
 def determine_items_to_remove(target_dir, *, files_to_skip):
     if not target_dir.exists():
