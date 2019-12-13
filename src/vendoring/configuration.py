@@ -1,6 +1,8 @@
 """Loads configuration from pyproject.toml
 """
 
+# mypy: allow-any-generics, allow-any-explicit
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple, cast
@@ -46,12 +48,16 @@ class Configuration:
     stub_overrides: Dict[str, List[str]]
 
     @classmethod
-    def load_from_dict(cls, dictionary, *, location) -> "Configuration":
+    def load_from_dict(
+        cls, dictionary: Dict[str, Any], *, location: Path
+    ) -> "Configuration":
         """Constructs a Configuration, validating the values in `dictionary`, expecting paths to be within `location`.
         """
 
-        def processor(*, default, instance_of, wrapper):
-            def func(key, di):
+        def processor(
+            *, default: Any, instance_of: Type, wrapper: Callable
+        ) -> Callable:
+            def func(key: str, di: Dict[str, Any]) -> Any:
                 if key not in di:
                     if default is not None:
                         return default
@@ -68,7 +74,7 @@ class Configuration:
 
             return func
 
-        def path_wrapper(value):
+        def path_wrapper(value: str) -> Path:
             path = Path(value)
             # Relative paths, are contained within location.
             if not path.is_absolute():
@@ -92,13 +98,13 @@ class Configuration:
                 retval.append(cast(Tuple[str, str], tuple(elem)))
             return retval
 
-        def list_of_str_wrapper(value):
+        def list_of_str_wrapper(value: List[str]) -> List[str]:
             if not all(isinstance(elem, str) for elem in value):
                 raise ConfigurationError(f"Expected list of strings.")
             return value
 
-        def dict_wrapper(value_processor):
-            def checker(di):
+        def dict_wrapper(value_processor: Callable) -> Callable:
+            def checker(di: Dict[str, Any]) -> Dict[str, Any]:
                 for key in list(di.keys()):
                     di[key] = value_processor(key, di)
                 return di
@@ -113,8 +119,10 @@ class Configuration:
             "list_of_str": processor(
                 default=[], instance_of=list, wrapper=list_of_str_wrapper,
             ),
-            "list_of_list_of_str": processor(
-                default=[], instance_of=list, wrapper=list_of_list_of_str_wrapper,
+            "list_of_tuple_with_two_str": processor(
+                default=[],
+                instance_of=list,
+                wrapper=list_of_tuple_with_two_str_wrapper,
             ),
         }
         processors.update(
@@ -138,7 +146,7 @@ class Configuration:
             "requirements_path": "path",
             "ignore_files": "list_of_str",
             "patches_dir": "path",
-            "additional_import_substitutions": "list_of_list_of_str",
+            "additional_import_substitutions": "list_of_tuple_with_two_str",
             "target_drop_paths": "list_of_str",
             "include_licenses": "bool",
             "license_fallback_urls": "dict_str",

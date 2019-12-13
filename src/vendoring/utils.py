@@ -1,11 +1,13 @@
 import shlex
 import shutil
 import subprocess
+from pathlib import Path
+from typing import Iterable, List, Optional
 
 from vendoring.ui import UI
 
 
-def remove_all(items_to_cleanup):
+def remove_all(items_to_cleanup: Iterable[Path]) -> None:
     for item in items_to_cleanup:
         if item.is_dir():
             shutil.rmtree(str(item))
@@ -13,7 +15,7 @@ def remove_all(items_to_cleanup):
             item.unlink()
 
 
-def run(command, *, working_directory):
+def run(command: List[str], *, working_directory: Optional[Path]) -> None:
     UI.log("Running {}".format(" ".join(map(shlex.quote, command))))
     p = subprocess.Popen(
         command,

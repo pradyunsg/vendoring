@@ -5,6 +5,7 @@ import traceback
 from contextlib import contextmanager
 from itertools import cycle
 from textwrap import indent
+from typing import Iterator, List, Optional
 
 import click as _click  # because click has useful utilities
 
@@ -19,26 +20,26 @@ class _UserInterface:
         "◵",
     ]
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.verbose = False
 
         # Internal state
-        self._indentation = 0
-        self._current_task = None
-        self._logged_messages = []
+        self._indentation: int = 0
+        self._current_task: Optional[str] = None
+        self._logged_messages: List[str] = []
 
-        self._spinner = None
+        self._spinner: Optional[Iterator[str]] = None
 
-    def _log(self, text, nl=True, erase=False):
+    def _log(self, text: str, nl: bool = True, erase: bool = False) -> None:
         if erase:
             assert nl is False
             text += "\b" * len(text)
         _click.echo(text, nl=nl)
 
-    def warn(self, message):
+    def warn(self, message: str) -> None:
         self.log(_click.style(f"WARN: {message}", fg="yellow"))
 
-    def log(self, message):
+    def log(self, message: str) -> None:
         if self._indentation:
             message = indent(message, "  " * self._indentation)
 
@@ -52,7 +53,7 @@ class _UserInterface:
         self._log(message)
 
     @contextmanager
-    def indent(self):
+    def indent(self) -> Iterator[None]:
         self._indentation += 1
         try:
             yield
@@ -60,7 +61,7 @@ class _UserInterface:
             self._indentation -= 1
 
     @contextmanager
-    def task(self, task):
+    def task(self, task: str) -> Iterator[None]:
         if self._current_task is not None:
             raise Exception("Only 1 task at a time.")
 
@@ -81,7 +82,7 @@ class _UserInterface:
             self._logged_messages = []
             self._spinner = None
 
-    def _task_failed(self, error):
+    def _task_failed(self, error: VendoringError) -> None:
         if self.verbose:
             # There's nothing that was "hidden", so no action needed.
             return
@@ -92,7 +93,7 @@ class _UserInterface:
             for message in self._logged_messages:
                 self._log(message)
 
-    def _task_success(self):
+    def _task_success(self) -> None:
         message = _click.style("Done!", fg="green")
         if self.verbose:
             with self.indent():
@@ -100,7 +101,7 @@ class _UserInterface:
         else:
             self._log(message)
 
-    def show_error(self, e):
+    def show_error(self, e: Exception) -> None:
         if self.verbose:
             parts = traceback.format_exception(e.__class__, e, e.__traceback__)
             message = "".join(parts)

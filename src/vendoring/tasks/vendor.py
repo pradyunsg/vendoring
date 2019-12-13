@@ -2,13 +2,16 @@
 """
 
 import re
+from pathlib import Path
+from typing import List, Tuple
 
+from vendoring.configuration import Configuration
 from vendoring.ui import UI
 from vendoring.utils import remove_all as _remove_all
 from vendoring.utils import run
 
 
-def download_libraries(requirements_path, target_dir):
+def download_libraries(requirements_path: Path, target_dir: Path) -> None:
     command = [
         "pip",
         "install",
@@ -24,7 +27,7 @@ def download_libraries(requirements_path, target_dir):
     run(command, working_directory=None)
 
 
-def remove_unnecessary_items(target_dir, target_drop_paths):
+def remove_unnecessary_items(target_dir: Path, target_drop_paths: List[str]) -> None:
     # Cleanup any metadata directories created.
     _remove_all(target_dir.glob("*.dist-info"))
     _remove_all(target_dir.glob("*.egg-info"))
@@ -37,8 +40,11 @@ def remove_unnecessary_items(target_dir, target_drop_paths):
 
 
 def rewrite_file_imports(
-    item, target_namespace, vendored_libs, additional_import_substitutions
-):
+    item: Path,
+    target_namespace: str,
+    vendored_libs: List[str],
+    additional_import_substitutions: List[Tuple[str, str]],
+) -> None:
     """Rewrite 'import xxx' and 'from xxx import' for vendored_libs.
     """
 
@@ -64,8 +70,11 @@ def rewrite_file_imports(
 
 
 def rewrite_imports(
-    target_dir, target_namespace, vendored_libs, additional_import_substitutions
-):
+    target_dir: Path,
+    target_namespace: str,
+    vendored_libs: List[str],
+    additional_import_substitutions: List[Tuple[str, str]],
+) -> None:
     for item in target_dir.iterdir():
         if item.is_dir():
             rewrite_imports(
@@ -77,7 +86,7 @@ def rewrite_imports(
             )
 
 
-def detect_vendored_libs(target_dir, files_to_skip):
+def detect_vendored_libs(target_dir: Path, files_to_skip: List[str]) -> List[str]:
     retval = []
     for item in target_dir.iterdir():
         if item.is_dir():
@@ -92,19 +101,19 @@ def detect_vendored_libs(target_dir, files_to_skip):
     return retval
 
 
-def _apply_patch(patch_file_path, working_directory):
+def _apply_patch(patch_file_path: Path, working_directory: Path) -> None:
     run(
         ["git", "apply", "--verbose", str(patch_file_path)],
         working_directory=working_directory,
     )
 
 
-def apply_patches(patch_dir, working_directory):
+def apply_patches(patch_dir: Path, working_directory: Path) -> None:
     for patch in patch_dir.glob("*.patch"):
         _apply_patch(patch_dir / patch, working_directory)
 
 
-def vendor_libraries(config):
+def vendor_libraries(config: Configuration) -> List[str]:
     target_dir = config.target_dir
 
     # Download the relevant libraries.

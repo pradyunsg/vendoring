@@ -12,7 +12,7 @@ from vendoring.ui import UI
 
 
 @click.group()
-def main():
+def main() -> None:
     pass
 
 
@@ -23,7 +23,7 @@ def main():
     default=".",
     type=click.Path(exists=True, file_okay=False, resolve_path=True),
 )
-def sync(verbose, location):
+def sync(verbose: bool, location: Path) -> None:
     UI.verbose = verbose
 
     location = Path(location)

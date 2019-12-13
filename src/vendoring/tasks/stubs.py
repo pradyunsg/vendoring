@@ -9,9 +9,12 @@ import os
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
+from vendoring.configuration import Configuration
 
-def determine_stub_files(lib, stub_overrides):
-    # type: (str, Dict[str, List[str]]) -> Iterable[Tuple[str, str]]
+
+def determine_stub_files(
+    lib: str, stub_overrides: Dict[str, List[str]]
+) -> Iterable[Tuple[str, str]]:
     # There's no special handling needed -- a <libname>.pyi file is good enough
     if lib not in stub_overrides:
         yield lib + ".pyi", lib
@@ -28,8 +31,7 @@ def determine_stub_files(lib, stub_overrides):
         yield rel_location, import_name
 
 
-def write_stub(destination, import_name):
-    # type: (Path, str) -> None
+def write_stub(destination: Path, import_name: str) -> None:
     # Create the parent directories if needed.
     if not destination.parent.exists():
         destination.parent.mkdir()
@@ -38,7 +40,7 @@ def write_stub(destination, import_name):
     destination.write_text("from %s import *" % import_name)
 
 
-def generate_stubs(config, libraries) -> None:
+def generate_stubs(config: Configuration, libraries: List[str]) -> None:
     target_dir = config.target_dir
     stub_overrides = config.stub_overrides
 

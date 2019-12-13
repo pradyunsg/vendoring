@@ -1,10 +1,16 @@
 """Logic for cleaning up already vendored files.
 """
 
+from pathlib import Path
+from typing import Iterable, List
+
+from vendoring.configuration import Configuration
 from vendoring.utils import remove_all
 
 
-def determine_items_to_remove(target_dir, *, files_to_skip):
+def determine_items_to_remove(
+    target_dir: Path, *, files_to_skip: List[str]
+) -> Iterable[Path]:
     if not target_dir.exists():
         # Folder does not exist, nothing to cleanup.
         return
@@ -18,7 +24,7 @@ def determine_items_to_remove(target_dir, *, files_to_skip):
             yield item
 
 
-def cleanup_existing_vendored(config):
+def cleanup_existing_vendored(config: Configuration) -> None:
     """Cleans up existing vendored files in `target_dir` directory.
     """
     target_dir = config.target_dir
