@@ -1,0 +1,7 @@
+*.pyc
+
+.nox/
+/build/
+/dist/
+
+.*cache
