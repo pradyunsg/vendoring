@@ -39,7 +39,7 @@ def sync(verbose, location):
 
         if config.include_licenses:
             with UI.task("Fetch licenses"):
-                fetch_licenses(config, libraries)
+                fetch_licenses(config)
 
         if config.include_stubs:
             with UI.task("Generate static-typing stubs"):
