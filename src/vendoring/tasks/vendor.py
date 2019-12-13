@@ -64,7 +64,7 @@ def rewrite_file_imports(
 
 
 def rewrite_imports(
-    target_dir, vendored_libs, target_namespace, additional_import_substitutions
+    target_dir, target_namespace, vendored_libs, additional_import_substitutions
 ):
     for item in target_dir.iterdir():
         if item.is_dir():
@@ -120,8 +120,8 @@ def vendor_libraries(config):
     # Rewrite the imports we want changed.
     rewrite_imports(
         target_dir,
-        vendored_libs,
         config.target_namespace,
+        vendored_libs,
         config.additional_import_substitutions,
     )
 
