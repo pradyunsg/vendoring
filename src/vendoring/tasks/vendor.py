@@ -50,13 +50,13 @@ def rewrite_file_imports(
 
     for lib in vendored_libs:
         text = re.sub(
-            r"(\n\s*|^)import %s(\n\s*)" % lib,
-            rf"\1from {target_namespace} import %s\2" % lib,
+            rf"(\n\s*|^)import {lib}(\n\s*)",
+            rf"\1from {target_namespace} import {lib}\2",
             text,
         )
         text = re.sub(
-            r"(\n\s*|^)from %s(\.|\s+)" % lib,
-            rf"\1from {target_namespace}.%s\2" % lib,
+            rf"(\n\s*|^)from {lib}(\.|\s+)",
+            rf"\1from {target_namespace}.{lib}\2",
             text,
         )
 
