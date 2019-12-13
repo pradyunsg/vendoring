@@ -29,7 +29,7 @@ def sync(verbose, location):
     location = Path(location)
     try:
         with UI.task("Load configuration"):
-            config = (load_configuration(location),)
+            config = load_configuration(location)
 
         with UI.task("Clean existing libraries"):
             cleanup_existing_vendored(config)
