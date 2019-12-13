@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple, cast
+from typing import Any, Callable, Dict, List, Tuple, Type, cast
 
 from toml import TomlDecodeError
 from toml import loads as parse_toml
