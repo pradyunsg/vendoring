@@ -24,12 +24,12 @@ def download_libraries(requirements_path, target_dir):
     run(command, working_directory=None)
 
 
-def remove_unnecessary_items(target_dir, drop_paths):
+def remove_unnecessary_items(target_dir, target_drop_paths):
     # Cleanup any metadata directories created.
     _remove_all(target_dir.glob("*.dist-info"))
     _remove_all(target_dir.glob("*.egg-info"))
 
-    for location in drop_paths:
+    for location in target_drop_paths:
         if "*" in location:
             _remove_all(target_dir.glob(location))
         else:
@@ -89,7 +89,6 @@ def detect_vendored_libs(target_dir, files_to_skip):
                 UI.warn(f"Got unexpected non-Python file: {item}")
                 continue
             retval.append(item.name[:-3])
-
     return retval
 
 
@@ -112,7 +111,7 @@ def vendor_libraries(config):
     download_libraries(config.requirements_path, target_dir)
 
     # Cleanup unnecessary directories/files created.
-    remove_unnecessary_items(target_dir, config.drop_paths)
+    remove_unnecessary_items(target_dir, config.target_drop_paths)
 
     # Detect what got downloaded.
     vendored_libs = detect_vendored_libs(target_dir, config.ignore_files)

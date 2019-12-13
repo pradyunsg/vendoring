@@ -31,7 +31,7 @@ class Configuration:
     # Additional substitutions to be made for imports
     additional_import_substitutions: List[str]
     # Additional substitutions to be made for imports
-    drop_paths: List[str]
+    target_drop_paths: List[str]
 
     # Whether licenses should be included
     include_licenses: bool
@@ -131,7 +131,7 @@ class Configuration:
             "ignore_files": "list_of_str",
             "patches_dir": "path",
             "additional_import_substitutions": "list_of_list_of_str",
-            "drop_paths": "list_of_str",
+            "target_drop_paths": "list_of_str",
             "include_licenses": "bool",
             "license_fallback_urls": "dict_str",
             "license_directories": "dict_str",
