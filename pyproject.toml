@@ -13,6 +13,7 @@ requires = [
   "click",
   "jsonschema",
   "toml",
+  "requests",
 ]
 requires-python = "~= 3.8.0"
 
