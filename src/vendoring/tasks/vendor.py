@@ -107,7 +107,7 @@ def _apply_patch(patch_file_path: Path, working_directory: Path) -> None:
 
 def apply_patches(patch_dir: Path, working_directory: Path) -> None:
     for patch in patch_dir.glob("*.patch"):
-        _apply_patch(patch_dir / patch, working_directory)
+        _apply_patch(patch, working_directory)
 
 
 def vendor_libraries(config: Configuration) -> List[str]:
