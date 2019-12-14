@@ -3,7 +3,7 @@
 
 import re
 from pathlib import Path
-from typing import List, Tuple
+from typing import Dict, List
 
 from vendoring.configuration import Configuration
 from vendoring.ui import UI
@@ -11,14 +11,14 @@ from vendoring.utils import remove_all as _remove_all
 from vendoring.utils import run
 
 
-def download_libraries(requirements_path: Path, target_dir: Path) -> None:
+def download_libraries(requirements: Path, destination: Path) -> None:
     command = [
         "pip",
         "install",
         "-t",
-        str(target_dir),
+        str(destination),
         "-r",
-        str(requirements_path),
+        str(requirements),
         "--no-compile",
         # We use --no-deps because we want to ensure that dependencies are provided.
         # This includes all dependencies recursively up the chain.
@@ -27,23 +27,23 @@ def download_libraries(requirements_path: Path, target_dir: Path) -> None:
     run(command, working_directory=None)
 
 
-def remove_unnecessary_items(target_dir: Path, target_drop_paths: List[str]) -> None:
+def remove_unnecessary_items(destination: Path, drop_paths: List[str]) -> None:
     # Cleanup any metadata directories created.
-    _remove_all(target_dir.glob("*.dist-info"))
-    _remove_all(target_dir.glob("*.egg-info"))
+    _remove_all(destination.glob("*.dist-info"))
+    _remove_all(destination.glob("*.egg-info"))
 
-    for location in target_drop_paths:
+    for location in drop_paths:
         if "*" in location:
-            _remove_all(target_dir.glob(location))
+            _remove_all(destination.glob(location))
         else:
-            _remove_all([target_dir / location])
+            _remove_all([destination / location])
 
 
 def rewrite_file_imports(
     item: Path,
-    target_namespace: str,
+    namespace: str,
     vendored_libs: List[str],
-    additional_import_substitutions: List[Tuple[str, str]],
+    additional_substitutions: List[Dict[str, str]],
 ) -> None:
     """Rewrite 'import xxx' and 'from xxx import' for vendored_libs.
     """
@@ -51,44 +51,41 @@ def rewrite_file_imports(
     text = item.read_text(encoding="utf-8")
 
     # Configurable rewriting of lines.
-    for pattern, substitution in additional_import_substitutions:
+    for di in additional_substitutions:
+        pattern, substitution = di["match"], di["replace"]
         text = re.sub(pattern, substitution, text)
 
     for lib in vendored_libs:
         text = re.sub(
             rf"(\n\s*|^)import {lib}(\n\s*)",
-            rf"\1from {target_namespace} import {lib}\2",
+            rf"\1from {namespace} import {lib}\2",
             text,
         )
         text = re.sub(
-            rf"(\n\s*|^)from {lib}(\.|\s+)",
-            rf"\1from {target_namespace}.{lib}\2",
-            text,
+            rf"(\n\s*|^)from {lib}(\.|\s+)", rf"\1from {namespace}.{lib}\2", text,
         )
 
     item.write_text(text, encoding="utf-8")
 
 
 def rewrite_imports(
-    target_dir: Path,
-    target_namespace: str,
+    destination: Path,
+    namespace: str,
     vendored_libs: List[str],
-    additional_import_substitutions: List[Tuple[str, str]],
+    additional_substitutions: List[Dict[str, str]],
 ) -> None:
-    for item in target_dir.iterdir():
+    for item in destination.iterdir():
         if item.is_dir():
-            rewrite_imports(
-                item, target_namespace, vendored_libs, additional_import_substitutions
-            )
+            rewrite_imports(item, namespace, vendored_libs, additional_substitutions)
         elif item.name.endswith(".py"):
             rewrite_file_imports(
-                item, target_namespace, vendored_libs, additional_import_substitutions
+                item, namespace, vendored_libs, additional_substitutions
             )
 
 
-def detect_vendored_libs(target_dir: Path, files_to_skip: List[str]) -> List[str]:
+def detect_vendored_libs(destination: Path, files_to_skip: List[str]) -> List[str]:
     retval = []
-    for item in target_dir.iterdir():
+    for item in destination.iterdir():
         if item.is_dir():
             retval.append(item.name)
         elif item.name.endswith(".pyi"):  # generated stubs
@@ -114,23 +111,20 @@ def apply_patches(patch_dir: Path, working_directory: Path) -> None:
 
 
 def vendor_libraries(config: Configuration) -> List[str]:
-    target_dir = config.target_dir
+    destination = config.destination
 
     # Download the relevant libraries.
-    download_libraries(config.requirements_path, target_dir)
+    download_libraries(config.requirements, destination)
 
     # Cleanup unnecessary directories/files created.
-    remove_unnecessary_items(target_dir, config.target_drop_paths)
+    remove_unnecessary_items(destination, config.drop_paths)
 
     # Detect what got downloaded.
-    vendored_libs = detect_vendored_libs(target_dir, config.ignore_files)
+    vendored_libs = detect_vendored_libs(destination, config.protected_files)
 
     # Rewrite the imports we want changed.
     rewrite_imports(
-        target_dir,
-        config.target_namespace,
-        vendored_libs,
-        config.additional_import_substitutions,
+        destination, config.namespace, vendored_libs, config.substitute,
     )
 
     # Apply user provided patches.

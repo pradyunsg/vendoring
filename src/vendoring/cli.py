@@ -37,12 +37,10 @@ def sync(verbose: bool, location: Path) -> None:
         with UI.task("Add vendored libraries"):
             libraries = vendor_libraries(config)
 
-        if config.include_licenses:
-            with UI.task("Fetch licenses"):
-                fetch_licenses(config)
+        with UI.task("Fetch licenses"):
+            fetch_licenses(config)
 
-        if config.include_stubs:
-            with UI.task("Generate static-typing stubs"):
-                generate_stubs(config, libraries)
+        with UI.task("Generate static-typing stubs"):
+            generate_stubs(config, libraries)
     except VendoringError as e:
         UI.show_error(e)

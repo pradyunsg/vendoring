@@ -9,13 +9,13 @@ from vendoring.utils import remove_all
 
 
 def determine_items_to_remove(
-    target_dir: Path, *, files_to_skip: List[str]
+    destination: Path, *, files_to_skip: List[str]
 ) -> Iterable[Path]:
-    if not target_dir.exists():
+    if not destination.exists():
         # Folder does not exist, nothing to cleanup.
         return
 
-    for item in target_dir.iterdir():
+    for item in destination.iterdir():
         if item.is_dir():
             # Directory
             yield item
@@ -25,10 +25,10 @@ def determine_items_to_remove(
 
 
 def cleanup_existing_vendored(config: Configuration) -> None:
-    """Cleans up existing vendored files in `target_dir` directory.
+    """Cleans up existing vendored files in `destination` directory.
     """
-    target_dir = config.target_dir
-    items = determine_items_to_remove(target_dir, files_to_skip=config.ignore_files)
+    destination = config.destination
+    items = determine_items_to_remove(destination, files_to_skip=config.protected_files)
 
     # TODO: log how many items were removed.
     remove_all(items)

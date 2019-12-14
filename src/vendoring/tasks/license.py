@@ -13,17 +13,17 @@ SDistMember = Union[tarfile.TarInfo, zipfile.ZipInfo]
 SDistArchive = Union[tarfile.TarFile, zipfile.ZipFile]
 
 
-def download_sources(destination: Path, requirements_path: Path) -> None:
+def download_sources(location: Path, requirements: Path) -> None:
     cmd = [
         "pip",
         "download",
         "-r",
-        str(requirements_path),
+        str(requirements),
         "--no-binary",
         ":all:",
         "--no-deps",
         "--dest",
-        str(destination),
+        str(location),
     ]
     run(cmd, working_directory=None)
 
@@ -39,7 +39,7 @@ def libname_from_dir(dirname: str) -> str:
 
 
 def extract_license_member(
-    target_dir: Path,
+    destination: Path,
     tar: SDistArchive,
     member: SDistMember,
     name: str,
@@ -50,9 +50,9 @@ def extract_license_member(
     dirname = list(mpath.parents)[-2].name  # -1 is .
     libname = libname_from_dir(dirname)
 
-    dest = license_destination(target_dir, libname, mpath.name, license_directories)
+    dest = license_destination(destination, libname, mpath.name, license_directories)
 
-    UI.log("Extracting {} into {}".format(name, dest.relative_to(target_dir)))
+    UI.log("Extracting {} into {}".format(name, dest.relative_to(destination)))
     try:
         fileobj = tar.extractfile(member)  # type: ignore
         dest.write_bytes(fileobj.read())  # type: ignore
@@ -61,7 +61,7 @@ def extract_license_member(
 
 
 def find_and_extract_license(
-    target_dir: Path,
+    destination: Path,
     tar: SDistArchive,
     members: Iterable[SDistMember],
     license_directories: Dict[str, str],
@@ -79,24 +79,24 @@ def find_and_extract_license(
                 UI.log("Ignoring {}".format(name))
                 continue
             found = True
-            extract_license_member(target_dir, tar, member, name, license_directories)
+            extract_license_member(destination, tar, member, name, license_directories)
     return found
 
 
 def license_destination(
-    target_dir: Path, libname: str, filename: str, license_directories: Dict[str, str]
+    destination: Path, libname: str, filename: str, license_directories: Dict[str, str]
 ) -> Path:
     """Given the (reconstructed) library name, find appropriate destination"""
-    normal = target_dir / libname
+    normal = destination / libname
     if normal.is_dir():
         return normal / filename
-    lowercase = target_dir / libname.lower()
+    lowercase = destination / libname.lower()
     if lowercase.is_dir():
         return lowercase / filename
     if libname in license_directories:
-        return target_dir / license_directories[libname] / filename
+        return destination / license_directories[libname] / filename
     # fallback to libname.LICENSE (used for nondirs)
-    return target_dir / "{}.{}".format(libname, filename)
+    return destination / "{}.{}".format(libname, filename)
 
 
 def download_url(url: str, dest: Path) -> None:
@@ -107,7 +107,7 @@ def download_url(url: str, dest: Path) -> None:
 
 
 def license_fallback(
-    target_dir: Path,
+    destination: Path,
     sdist_name: str,
     license_directories: Dict[str, str],
     license_fallback_urls: Dict[str, str],
@@ -119,13 +119,13 @@ def license_fallback(
 
     url = license_fallback_urls[libname]
     _, _, name = url.rpartition("/")
-    dest = license_destination(target_dir, libname, name, license_directories)
+    dest = license_destination(destination, libname, name, license_directories)
 
     download_url(url, dest)
 
 
 def extract_license(
-    target_dir: Path,
+    destination: Path,
     sdist: Path,
     license_directories: Dict[str, str],
     license_fallback_urls: Dict[str, str],
@@ -134,13 +134,13 @@ def extract_license(
         ext = sdist.suffixes[-1][1:]
         with tarfile.open(sdist, mode="r:{}".format(ext)) as tar:
             return find_and_extract_license(
-                target_dir, tar, tar.getmembers(), license_directories,
+                destination, tar, tar.getmembers(), license_directories,
             )
 
     def extract_from_source_zipfile(sdist: Path) -> bool:
         with zipfile.ZipFile(sdist) as zip:
             return find_and_extract_license(
-                target_dir, zip, zip.infolist(), license_directories,
+                destination, zip, zip.infolist(), license_directories,
             )
 
     if sdist.suffixes[-2] == ".tar":
@@ -154,19 +154,21 @@ def extract_license(
         return
 
     UI.log("License not found in {}".format(sdist.name))
-    license_fallback(target_dir, sdist.name, license_directories, license_fallback_urls)
+    license_fallback(
+        destination, sdist.name, license_directories, license_fallback_urls
+    )
 
 
 def fetch_licenses(config: Configuration) -> None:
-    target_dir = config.target_dir
+    destination = config.destination
     license_directories = config.license_directories
     license_fallback_urls = config.license_fallback_urls
-    requirements_path = config.requirements_path
+    requirements = config.requirements
 
-    tmp_dir = target_dir / "__tmp__"
-    download_sources(tmp_dir, requirements_path)
+    tmp_dir = destination / "__tmp__"
+    download_sources(tmp_dir, requirements)
 
     for sdist in tmp_dir.iterdir():
-        extract_license(target_dir, sdist, license_directories, license_fallback_urls)
+        extract_license(destination, sdist, license_directories, license_fallback_urls)
 
     remove_all([tmp_dir])
