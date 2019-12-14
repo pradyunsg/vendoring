@@ -7,6 +7,7 @@ module = "vendoring"
 author = "Pradyun Gedam"
 author-email = "pradyunsg@gmail.com"
 home-page = "https://github.com/pradyunsg/vendoring"
+description-file = "README.md"
 classifiers = ["License :: OSI Approved :: MIT License"]
 requires = [
   "click",
