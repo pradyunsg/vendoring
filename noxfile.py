@@ -89,7 +89,9 @@ def perform_git_checks(session, version_tag):
 def bump(session, *, version, file, kind):
     session.log(f"Bump version to {version!r}")
     contents = file.read_text()
-    new_contents = re.sub('__version__ = "(.+)"', f'__version__ = "{version}"', contents)
+    new_contents = re.sub(
+        '__version__ = "(.+)"', f'__version__ = "{version}"', contents
+    )
     file.write_text(new_contents)
 
     session.log(f"git commit")
