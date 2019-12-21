@@ -9,6 +9,8 @@ from vendoring.ui import UI
 
 def remove_all(items_to_cleanup: Iterable[Path]) -> None:
     for item in items_to_cleanup:
+        if not item.exists():
+            continue
         if item.is_dir():
             shutil.rmtree(str(item))
         else:
