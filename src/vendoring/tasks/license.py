@@ -13,7 +13,7 @@ SDistMember = Union[tarfile.TarInfo, zipfile.ZipInfo]
 SDistArchive = Union[tarfile.TarFile, zipfile.ZipFile]
 
 
-def download_sources(location: Path, requirements: Path) -> None:
+def download_sdists(location: Path, requirements: Path) -> None:
     cmd = [
         "pip",
         "download",
@@ -28,7 +28,7 @@ def download_sources(location: Path, requirements: Path) -> None:
     run(cmd, working_directory=None)
 
 
-def libname_from_dir(dirname: str) -> str:
+def get_library_name_from_directory(dirname: str) -> str:
     """Reconstruct the library name without it's version"""
     parts = []
     for part in dirname.split("-"):
@@ -48,9 +48,9 @@ def extract_license_member(
     mpath = Path(name)  # relative path inside the sdist
 
     dirname = list(mpath.parents)[-2].name  # -1 is .
-    libname = libname_from_dir(dirname)
+    libname = get_library_name_from_directory(dirname)
 
-    dest = license_destination(destination, libname, mpath.name, license_directories)
+    dest = get_license_destination(destination, libname, mpath.name, license_directories)
 
     UI.log("Extracting {} into {}".format(name, dest.relative_to(destination)))
     try:
@@ -83,7 +83,7 @@ def find_and_extract_license(
     return found
 
 
-def license_destination(
+def get_license_destination(
     destination: Path, libname: str, filename: str, license_directories: Dict[str, str]
 ) -> Path:
     """Given the (reconstructed) library name, find appropriate destination"""
@@ -99,32 +99,32 @@ def license_destination(
     return destination / "{}.{}".format(libname, filename)
 
 
-def download_url(url: str, dest: Path) -> None:
+def download_from_url(url: str, dest: Path) -> None:
     UI.log("Downloading {}".format(url))
     r = requests.get(url, allow_redirects=True)
     r.raise_for_status()
     dest.write_bytes(r.content)
 
 
-def license_fallback(
+def get_license_fallback(
     destination: Path,
     sdist_name: str,
     license_directories: Dict[str, str],
     license_fallback_urls: Dict[str, str],
 ) -> None:
     """Hardcoded license URLs. Check when updating if those are still needed"""
-    libname = libname_from_dir(sdist_name)
+    libname = get_library_name_from_directory(sdist_name)
     if libname not in license_fallback_urls:
         raise ValueError("No hardcoded URL for {} license".format(libname))
 
     url = license_fallback_urls[libname]
     _, _, name = url.rpartition("/")
-    dest = license_destination(destination, libname, name, license_directories)
+    dest = get_license_destination(destination, libname, name, license_directories)
 
-    download_url(url, dest)
+    download_from_url(url, dest)
 
 
-def extract_license(
+def extract_license_from_sdist(
     destination: Path,
     sdist: Path,
     license_directories: Dict[str, str],
@@ -154,7 +154,7 @@ def extract_license(
         return
 
     UI.log("License not found in {}".format(sdist.name))
-    license_fallback(
+    get_license_fallback(
         destination, sdist.name, license_directories, license_fallback_urls
     )
 
@@ -166,9 +166,9 @@ def fetch_licenses(config: Configuration) -> None:
     requirements = config.requirements
 
     tmp_dir = destination / "__tmp__"
-    download_sources(tmp_dir, requirements)
+    download_sdists(tmp_dir, requirements)
 
     for sdist in tmp_dir.iterdir():
-        extract_license(destination, sdist, license_directories, license_fallback_urls)
+        extract_license_from_sdist(destination, sdist, license_directories, license_fallback_urls)
 
     remove_all([tmp_dir])
