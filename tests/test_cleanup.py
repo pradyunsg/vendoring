@@ -70,3 +70,12 @@ class TestCleanupExistingVendored:
         # Make sure the things we wanted happened
         determine_mock.assert_called_with(tmp_path, files_to_skip=[])
         remove_mock.assert_called_with(our_unique_blob)
+
+    def test_functional(self, mocker, throwaway):
+        config_mock = mocker.Mock()
+        config_mock.destination = throwaway
+        config_mock.protected_files = ["foo.txt"]
+
+        cleanup_existing_vendored(config_mock)
+
+        assert sorted(throwaway.iterdir()) == [throwaway / "foo.txt"]
