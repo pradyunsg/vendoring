@@ -26,10 +26,13 @@ def lint(session):
 
 @nox.session(python="3.8")
 def test(session):
-    session.install("pytest", "pytest-xdist")
-    session.install(".")
+    session.install("flit")
+    session.run(
+        "flit", "install", "-s", "--deps", "production", "--extra", "test", silent=True
+    )
 
-    session.run("pytest", "-n", "auto", *session.posargs)
+    args = session.posargs or ["-n", "auto", "--cov", "vendoring"]
+    session.run("pytest", *args)
 
 
 def get_version_from_arguments(arguments):
