@@ -16,5 +16,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
+    # Cache pre-commit
+    - name: for pre-commit caching
+      run: echo "::set-env name=PY::$(python -VV | sha256sum | cut -d' ' -f1)"
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cache/pre-commit
+        key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
+
     - uses: excitedleigh/setup-nox@0.1.0
     - run: nox
