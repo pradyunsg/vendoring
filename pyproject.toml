@@ -17,5 +17,14 @@ requires = [
 ]
 requires-python = "~= 3.8.0"
 
+[tool.flit.metadata.requires-extra]
+test = [
+  "pytest",
+  "pytest-xdist",
+  "pytest-cov",
+  "pytest-mock",
+]
+doc = ["sphinx"]
+
 [tool.flit.scripts]
 vendoring = "vendoring.cli:main"
