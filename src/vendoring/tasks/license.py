@@ -50,7 +50,9 @@ def extract_license_member(
     dirname = list(mpath.parents)[-2].name  # -1 is .
     libname = get_library_name_from_directory(dirname)
 
-    dest = get_license_destination(destination, libname, mpath.name, license_directories)
+    dest = get_license_destination(
+        destination, libname, mpath.name, license_directories
+    )
 
     UI.log("Extracting {} into {}".format(name, dest.relative_to(destination)))
     try:
@@ -169,6 +171,8 @@ def fetch_licenses(config: Configuration) -> None:
     download_sdists(tmp_dir, requirements)
 
     for sdist in tmp_dir.iterdir():
-        extract_license_from_sdist(destination, sdist, license_directories, license_fallback_urls)
+        extract_license_from_sdist(
+            destination, sdist, license_directories, license_fallback_urls
+        )
 
     remove_all([tmp_dir])
