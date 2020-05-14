@@ -47,6 +47,9 @@ def rewrite_file_imports(
 ) -> None:
     """Rewrite 'import xxx' and 'from xxx import' for vendored_libs.
     """
+    if namespace == "":
+        # If an empty namespace is provided, we don't rewrite imports.
+        return
 
     text = item.read_text(encoding="utf-8")
 
