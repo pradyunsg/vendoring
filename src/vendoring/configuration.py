@@ -112,7 +112,7 @@ class Configuration:
             base_directory=location,
             destination=Path(dictionary["destination"]),
             namespace=dictionary["namespace"],
-            requirements=dictionary["requirements"],
+            requirements=Path(dictionary["requirements"]),
             protected_files=dictionary["protected-files"],
             patches_dir=Path(dictionary["patches-dir"]),
             substitute=dictionary["transformations"]["substitute"],
