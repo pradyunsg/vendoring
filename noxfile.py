@@ -75,7 +75,7 @@ def perform_git_checks(session, version_tag):
     )
     if result.stdout:
         print(result.stdout)
-        session.error(f"The working tree has uncommitted changes")
+        session.error("The working tree has uncommitted changes")
 
     # Ensure this tag doesn't exist already.
     result = subprocess.run(
@@ -97,7 +97,7 @@ def bump(session, *, version, file, kind):
     )
     file.write_text(new_contents)
 
-    session.log(f"git commit")
+    session.log("git commit")
     subprocess.run(["git", "add", str(file)])
     subprocess.run(["git", "commit", "-m", f"Bump for {kind}"])
 
