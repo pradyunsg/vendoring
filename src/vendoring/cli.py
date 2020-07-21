@@ -1,5 +1,6 @@
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Optional
 
 import click
 
@@ -8,6 +9,7 @@ from vendoring.errors import VendoringError
 from vendoring.tasks.cleanup import cleanup_existing_vendored
 from vendoring.tasks.license import fetch_licenses
 from vendoring.tasks.stubs import generate_stubs
+from vendoring.tasks.update import update_requirements
 from vendoring.tasks.vendor import vendor_libraries
 from vendoring.ui import UI
 
@@ -18,6 +20,7 @@ template = SimpleNamespace(
         default=".",
         type=click.Path(exists=True, file_okay=False, resolve_path=True),
     ),
+    package=click.argument("package", default=None, required=False, type=str),
     # Options
     verbose=click.option("-v", "--verbose", is_flag=True),
 )
@@ -50,5 +53,22 @@ def sync(verbose: bool, location: Path) -> None:
 
         with UI.task("Generate static-typing stubs"):
             generate_stubs(config, libraries)
+    except VendoringError as e:
+        UI.show_error(e)
+
+
+@main.command()
+@template.verbose
+@template.location
+@template.package
+def update(verbose: bool, location: Path, package: Optional[str]) -> None:
+    UI.verbose = verbose
+    location = Path(location)
+
+    try:
+        with UI.task("Load configuration"):
+            config = load_configuration(location)
+        with UI.task("Updating requirements"):
+            update_requirements(config, package)
     except VendoringError as e:
         UI.show_error(e)
