@@ -33,8 +33,8 @@ def main() -> None:
 @template.location
 def sync(verbose: bool, location: Path) -> None:
     UI.verbose = verbose
-
     location = Path(location)
+
     try:
         with UI.task("Load configuration"):
             config = load_configuration(location)
