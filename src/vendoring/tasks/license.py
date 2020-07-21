@@ -1,5 +1,6 @@
 import tarfile
 import zipfile
+import tempfile
 from pathlib import Path
 from typing import Dict, Iterable, Union
 
@@ -167,12 +168,10 @@ def fetch_licenses(config: Configuration) -> None:
     license_fallback_urls = config.license_fallback_urls
     requirements = config.requirements
 
-    tmp_dir = destination / "__tmp__"
+    tmp_dir = Path(tempfile.gettempdir(), "vendoring-cache")
     download_sdists(tmp_dir, requirements)
 
     for sdist in tmp_dir.iterdir():
         extract_license_from_sdist(
             destination, sdist, license_directories, license_fallback_urls
         )
-
-    remove_all([tmp_dir])
