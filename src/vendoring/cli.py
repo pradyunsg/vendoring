@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import SimpleNamespace
 
 import click
 
@@ -10,6 +11,17 @@ from vendoring.tasks.stubs import generate_stubs
 from vendoring.tasks.vendor import vendor_libraries
 from vendoring.ui import UI
 
+template = SimpleNamespace(
+    # Arguments
+    location=click.argument(
+        "location",
+        default=".",
+        type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    ),
+    # Options
+    verbose=click.option("-v", "--verbose", is_flag=True),
+)
+
 
 @click.group()
 def main() -> None:
@@ -17,12 +29,8 @@ def main() -> None:
 
 
 @main.command()
-@click.option("-v", "--verbose", is_flag=True)
-@click.argument(
-    "location",
-    default=".",
-    type=click.Path(exists=True, file_okay=False, resolve_path=True),
-)
+@template.verbose
+@template.location
 def sync(verbose: bool, location: Path) -> None:
     UI.verbose = verbose
 
