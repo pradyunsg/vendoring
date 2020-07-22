@@ -4,6 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Iterable, List, Optional
 
+from vendoring.errors import VendoringError
 from vendoring.ui import UI
 
 
@@ -18,7 +19,8 @@ def remove_all(items_to_cleanup: Iterable[Path]) -> None:
 
 
 def run(command: List[str], *, working_directory: Optional[Path]) -> None:
-    UI.log("Running {}".format(" ".join(map(shlex.quote, command))))
+    cmd = " ".join(map(shlex.quote, command))
+    UI.log(f"Running {cmd}")
     p = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
@@ -36,3 +38,5 @@ def run(command: List[str], *, working_directory: Optional[Path]) -> None:
 
         if retcode is not None:
             break
+    if retcode:
+        raise VendoringError(f"Command exited with non-zero exit code: {retcode}")
