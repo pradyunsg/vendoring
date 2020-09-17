@@ -146,7 +146,7 @@ def extract_license_from_sdist(
                 destination, zip, zip.infolist(), license_directories,
             )
 
-    if sdist.suffixes[-2] == ".tar":
+    if sdist.suffixes[-2:-1] == [".tar"]:
         found = extract_from_source_tarfile(sdist)
     elif sdist.suffixes[-1] == ".zip":
         found = extract_from_source_zipfile(sdist)
