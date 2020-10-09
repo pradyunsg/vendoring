@@ -1,11 +1,11 @@
 """Logic for updating a vendoring-related requirements.txt file.
 """
 
-from os import linesep
 import re
 from dataclasses import dataclass
+from os import linesep
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import requests
 from packaging.version import VERSION_PATTERN

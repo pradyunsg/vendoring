@@ -1,6 +1,6 @@
 import tarfile
-import zipfile
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import Dict, Iterable, Union
 
@@ -8,7 +8,7 @@ import requests
 
 from vendoring.configuration import Configuration
 from vendoring.ui import UI
-from vendoring.utils import remove_all, run
+from vendoring.utils import run
 
 SDistMember = Union[tarfile.TarInfo, zipfile.ZipInfo]
 SDistArchive = Union[tarfile.TarFile, zipfile.ZipFile]
