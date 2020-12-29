@@ -10,6 +10,7 @@ home-page = "https://github.com/pradyunsg/vendoring"
 description-file = "README.md"
 classifiers = ["License :: OSI Approved :: MIT License"]
 requires = [
+  "appdirs",
   "click",
   "jsonschema",
   "toml",

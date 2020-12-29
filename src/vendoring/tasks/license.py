@@ -1,9 +1,9 @@
 import tarfile
-import tempfile
 import zipfile
 from pathlib import Path
 from typing import Dict, Iterable, Union
 
+import appdirs
 import requests
 
 from vendoring.configuration import Configuration
@@ -168,10 +168,10 @@ def fetch_licenses(config: Configuration) -> None:
     license_fallback_urls = config.license_fallback_urls
     requirements = config.requirements
 
-    tmp_dir = Path(tempfile.gettempdir(), "vendoring-cache")
-    download_sdists(tmp_dir, requirements)
+    cache_dir = Path(appdirs.user_cache_dir("vendoring"))
+    download_sdists(cache_dir, requirements)
 
-    for sdist in tmp_dir.iterdir():
+    for sdist in cache_dir.iterdir():
         extract_license_from_sdist(
             destination, sdist, license_directories, license_fallback_urls
         )
