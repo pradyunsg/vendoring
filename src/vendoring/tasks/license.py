@@ -168,10 +168,11 @@ def fetch_licenses(config: Configuration) -> None:
     license_fallback_urls = config.license_fallback_urls
     requirements = config.requirements
 
-    tmp_dir = Path(tempfile.gettempdir(), "vendoring-cache")
-    download_sdists(tmp_dir, requirements)
+    with tempfile.TemporaryDirectory(prefix="vendoring") as tmp:
+        tmp_dir = Path(tmp)
+        download_sdists(tmp_dir, requirements)
 
-    for sdist in tmp_dir.iterdir():
-        extract_license_from_sdist(
-            destination, sdist, license_directories, license_fallback_urls
-        )
+        for sdist in tmp_dir.iterdir():
+            extract_license_from_sdist(
+                destination, sdist, license_directories, license_fallback_urls
+            )
