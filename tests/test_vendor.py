@@ -2,6 +2,9 @@
 
 import textwrap
 
+import pytest
+
+from vendoring.errors import VendoringError
 from vendoring.tasks.vendor import rewrite_file_imports
 
 _SUPPORTED_IMPORT_FORMS = textwrap.dedent(
@@ -14,6 +17,23 @@ _SUPPORTED_IMPORT_FORMS = textwrap.dedent(
         import other.name4 as name5
     """
 )
+
+_UNSUPPORTED_IMPORT_FORMS = [
+    textwrap.dedent(
+        """\
+            import other
+            import other.shouldfail
+            import somethingelse
+        """
+    ),
+    textwrap.dedent(
+        """\
+            import other
+            import other.shouldfail # with comment
+            import somethingelse
+        """
+    ),
+]
 
 
 class TestRewriteFileImports:
@@ -95,3 +115,15 @@ class TestRewriteFileImports:
                 import other.NAME4 as NAME5
             """
         )
+
+    def test_error_on_unsupported_import(self, tmp_path):
+        path = tmp_path / "module.py"
+        for format in _UNSUPPORTED_IMPORT_FORMS:
+            path.write_text(format)
+            with pytest.raises(VendoringError):
+                rewrite_file_imports(
+                    path,
+                    namespace="namespace",
+                    vendored_libs=["other"],
+                    additional_substitutions=[],
+                )
