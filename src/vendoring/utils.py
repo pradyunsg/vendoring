@@ -30,11 +30,12 @@ def run(command: List[str], *, working_directory: Optional[Path]) -> None:
     )
     while True:
         retcode = p.poll()
-        line = p.stdout.readline().rstrip()
+        if p.stdout is not None:
+            line = p.stdout.readline().rstrip()
 
-        if line:
-            with UI.indent():
-                UI.log(line)
+            if line:
+                with UI.indent():
+                    UI.log(line)
 
         if retcode is not None:
             break
