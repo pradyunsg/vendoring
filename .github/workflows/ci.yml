@@ -26,5 +26,8 @@ jobs:
         path: ~/.cache/pre-commit
         key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
 
-    - uses: excitedleigh/setup-nox@0.1.0
-    - run: nox
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - run: pipx run nox
