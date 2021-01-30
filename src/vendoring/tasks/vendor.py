@@ -45,8 +45,7 @@ def rewrite_file_imports(
     vendored_libs: List[str],
     additional_substitutions: List[Dict[str, str]],
 ) -> None:
-    """Rewrite 'import xxx' and 'from xxx import' for vendored_libs.
-    """
+    """Rewrite 'import xxx' and 'from xxx import' for vendored_libs."""
     if namespace == "":
         # If an empty namespace is provided, we don't rewrite imports.
         return
@@ -65,7 +64,9 @@ def rewrite_file_imports(
             text,
         )
         text = re.sub(
-            rf"(\n\s*|^)from {lib}(\.|\s+)", rf"\1from {namespace}.{lib}\2", text,
+            rf"(\n\s*|^)from {lib}(\.|\s+)",
+            rf"\1from {namespace}.{lib}\2",
+            text,
         )
 
     item.write_text(text, encoding="utf-8")
@@ -127,7 +128,10 @@ def vendor_libraries(config: Configuration) -> List[str]:
 
     # Rewrite the imports we want changed.
     rewrite_imports(
-        destination, config.namespace, vendored_libs, config.substitute,
+        destination,
+        config.namespace,
+        vendored_libs,
+        config.substitute,
     )
 
     # Apply user provided patches.
