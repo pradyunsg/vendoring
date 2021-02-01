@@ -31,8 +31,7 @@ def test(session):
         "flit", "install", "-s", "--deps", "production", "--extra", "test", silent=True
     )
 
-    args = session.posargs or ["-n", "auto", "--cov", "vendoring"]
-    session.run("pytest", *args)
+    session.run("pytest", *session.posargs)
 
 
 def get_version_from_arguments(arguments):

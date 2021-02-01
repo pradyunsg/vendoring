@@ -21,7 +21,6 @@ requires-python = "~= 3.8"
 [tool.flit.metadata.requires-extra]
 test = [
   "pytest",
-  "pytest-xdist",
   "pytest-cov",
   "pytest-mock",
 ]
