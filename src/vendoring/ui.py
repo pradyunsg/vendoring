@@ -72,13 +72,12 @@ class _UserInterface:
             with self.indent():
                 yield
         except VendoringError as e:
-            self._current_task = None
             self._task_failed(e)
             raise
         else:
-            self._current_task = None
             self._task_success()
         finally:
+            self._current_task = None
             self._logged_messages = []
             self._spinner = None
 
