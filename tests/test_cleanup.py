@@ -18,7 +18,8 @@ def throwaway(tmp_path):
 class TestDetermineItemsToRemove:
     def test_non_existent_directory(self, tmp_path):
         locations = determine_items_to_remove(
-            tmp_path / "non-existent", files_to_skip=[],
+            tmp_path / "non-existent",
+            files_to_skip=[],
         )
 
         assert list(locations) == []

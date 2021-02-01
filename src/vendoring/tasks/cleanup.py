@@ -25,8 +25,7 @@ def determine_items_to_remove(
 
 
 def cleanup_existing_vendored(config: Configuration) -> None:
-    """Cleans up existing vendored files in `destination` directory.
-    """
+    """Cleans up existing vendored files in `destination` directory."""
     destination = config.destination
     items = determine_items_to_remove(destination, files_to_skip=config.protected_files)
 
