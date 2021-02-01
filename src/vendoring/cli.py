@@ -17,7 +17,8 @@ template = SimpleNamespace(
     # Arguments
     location=click.argument(
         "location",
-        default=".",
+        default=None,
+        required=False,
         type=click.Path(exists=True, file_okay=False, resolve_path=True),
     ),
     package=click.argument("package", default=None, required=False, type=str),
@@ -34,13 +35,18 @@ def main() -> None:
 @main.command()
 @template.verbose
 @template.location
-def sync(verbose: bool, location: Path) -> None:
+def sync(verbose: bool, location: Optional[str]) -> None:
     UI.verbose = verbose
-    location = Path(location)
+    if location is None:
+        project_path = Path()
+    else:
+        project_path = Path(location)
+
+    print(f"Working in {project_path}")
 
     try:
         with UI.task("Load configuration"):
-            config = load_configuration(location)
+            config = load_configuration(project_path)
 
         with UI.task("Clean existing libraries"):
             cleanup_existing_vendored(config)
