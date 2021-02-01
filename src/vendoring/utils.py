@@ -28,6 +28,7 @@ def run(command: List[str], *, working_directory: Optional[Path]) -> None:
         encoding="utf-8",
         cwd=working_directory,
     )
+    assert p.stdout  # make mypy happy
     while True:
         retcode = p.poll()
         line = p.stdout.readline().rstrip()
