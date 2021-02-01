@@ -28,4 +28,4 @@ jobs:
         with:
           python-version: 3.8
       - run: pip install nox
-      - run: nox -s test
+      - run: nox -s test -- -n auto
