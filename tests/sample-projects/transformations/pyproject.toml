@@ -1,0 +1,19 @@
+[tool.vendoring]
+destination = "vendored/"
+requirements = "vendor.txt"
+namespace = "transformations.vendored"
+
+[tool.vendoring.transformations]
+substitute = [
+  # pkg_resource's vendored packages are directly vendored in pip.
+  { match='pkg_resources\.extern', replace="transformations.vendored" },
+]
+drop = [
+  # contains unnecessary scripts
+  "bin/",
+  # unneeded parts of setuptools
+  "easy_install.py",
+  "setuptools",
+  "pkg_resources/_vendor/",
+  "pkg_resources/extern/",
+]

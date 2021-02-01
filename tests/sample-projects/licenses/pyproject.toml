@@ -1,0 +1,10 @@
+[tool.vendoring]
+destination = "vendored/"
+requirements = "vendor.txt"
+namespace = "licenses.vendored"
+
+[tool.vendoring.license.directories]
+msgpack-python = "msgpack"
+
+[tool.vendoring.license.fallback-urls]
+webencodings = "https://github.com/SimonSapin/python-webencodings/raw/master/LICENSE"

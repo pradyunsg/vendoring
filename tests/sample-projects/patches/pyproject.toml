@@ -1,0 +1,6 @@
+[tool.vendoring]
+destination = "vendored/"
+requirements = "vendor.txt"
+namespace = "patches.vendored"
+
+patches-dir = "patches"

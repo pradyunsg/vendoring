@@ -1,0 +1,4 @@
+appdirs==1.4.4
+six==1.15.0
+msgpack==1.0.0
+webencodings==0.5.1

@@ -1,0 +1,6 @@
+[tool.vendoring]
+destination = "vendored/"
+requirements = "vendor.txt"
+namespace = "protected_files.vendored"
+
+protected-files = ["README.md"]

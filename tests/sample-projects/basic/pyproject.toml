@@ -1,0 +1,4 @@
+[tool.vendoring]
+destination = "vendored/"
+requirements = "vendor.txt"
+namespace = "basic.vendored"
