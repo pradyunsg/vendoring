@@ -1,3 +1,4 @@
+import shutil
 import tarfile
 import tempfile
 import zipfile
@@ -168,10 +169,12 @@ def fetch_licenses(config: Configuration) -> None:
     license_fallback_urls = config.license_fallback_urls
     requirements = config.requirements
 
-    tmp_dir = Path(tempfile.gettempdir(), "vendoring-cache")
+    tmp_dir = Path(tempfile.gettempdir(), "vendoring-downloads")
     download_sdists(tmp_dir, requirements)
 
     for sdist in tmp_dir.iterdir():
         extract_license_from_sdist(
             destination, sdist, license_directories, license_fallback_urls
         )
+
+    shutil.rmtree(tmp_dir)
