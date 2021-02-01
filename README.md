@@ -14,7 +14,7 @@ As a general rule of thumb, if the project is going to be a PyPI package, it sho
 
 Many downstream redistributors have policies against this kind of bundling of dependencies, which means that they'll patch your software to debundle it. This can cause various kinds of issues, due to violations of assumptions being made about where the dependencies are available/which versions are being used. These issues result in difficult-to-debug errors, which are fairly difficult to communicate with end users.
 
-pip is a *very* special case with a [thorough rationale][rationale] for
+pip is a _very_ special case with a [thorough rationale][rationale] for
 vendoring/bundling dependencies with itself.
 
 [rationale]: https://pip.pypa.io/en/latest/development/vendoring-policy/#rationale
