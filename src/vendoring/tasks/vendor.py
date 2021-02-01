@@ -135,6 +135,7 @@ def vendor_libraries(config: Configuration) -> List[str]:
     )
 
     # Apply user provided patches.
-    apply_patches(config.patches_dir, working_directory=config.base_directory)
+    if config.patches_dir:
+        apply_patches(config.patches_dir, working_directory=config.base_directory)
 
     return vendored_libs

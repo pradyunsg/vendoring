@@ -5,7 +5,7 @@
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from jsonschema import ValidationError, validate
 from toml import TomlDecodeError
@@ -29,7 +29,7 @@ class Configuration:
     # Filenames to ignore in target directory
     protected_files: List[str]
     # Location to ``.patch` files to apply after vendoring
-    patches_dir: Path
+    patches_dir: Optional[Path]
 
     # Additional substitutions, done in addition to import rewriting
     substitute: List[Dict[str, str]]
@@ -107,18 +107,25 @@ class Configuration:
         except ValidationError as e:
             raise ConfigurationError(str(e))
 
+        def path_or_none(key: str) -> Optional[Path]:
+            if key in dictionary:
+                return Path(dictionary[key])
+            return None
+
         return Configuration(
             base_directory=location,
             destination=Path(dictionary["destination"]),
             namespace=dictionary["namespace"],
             requirements=Path(dictionary["requirements"]),
-            protected_files=dictionary["protected-files"],
-            patches_dir=Path(dictionary["patches-dir"]),
-            substitute=dictionary["transformations"]["substitute"],
-            drop_paths=dictionary["transformations"]["drop"],
-            license_fallback_urls=dictionary["license"]["fallback-urls"],
-            license_directories=dictionary["license"]["directories"],
-            typing_stubs=dictionary["typing-stubs"],
+            protected_files=dictionary.get("protected-files", []),
+            patches_dir=path_or_none("patches-dir"),
+            substitute=dictionary.get("transformations", {}).get("substitute", {}),
+            drop_paths=dictionary.get("transformations", {}).get("drop", []),
+            license_fallback_urls=dictionary.get("license", {}).get(
+                "fallback-urls", {}
+            ),
+            license_directories=dictionary.get("license", {}).get("directories", {}),
+            typing_stubs=dictionary.get("typing-stubs", {}),
         )
 
 
