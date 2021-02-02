@@ -3,7 +3,6 @@
 
 import re
 from dataclasses import dataclass
-from os import linesep
 from pathlib import Path
 from typing import List, Optional
 
@@ -85,4 +84,4 @@ def update_requirements(config: Configuration, package: Optional[str]) -> None:
 
     UI.log(f"Rewriting {requirements}")
     with requirements.open("w", encoding="utf-8") as f:
-        f.writelines(f"{p}{linesep}" for p in packages)
+        f.writelines(f"{p}\n" for p in packages)
