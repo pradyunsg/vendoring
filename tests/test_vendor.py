@@ -1,8 +1,8 @@
 """Unit tests for `vendoring.tasks.vendor`"""
 
 import textwrap
-from vendoring.tasks.vendor import rewrite_file_imports
 
+from vendoring.tasks.vendor import rewrite_file_imports
 
 _SUPPORTED_IMPORT_FORMS = textwrap.dedent(
     """\
