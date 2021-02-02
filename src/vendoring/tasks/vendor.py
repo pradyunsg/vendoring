@@ -63,6 +63,11 @@ def rewrite_file_imports(
                 text,
             )
             text = re.sub(
+                rf"(\n\s*|^)import {lib}(\.\S+)(?=\s+as)",
+                rf"\1import {namespace}.{lib}\2",
+                text,
+            )
+            text = re.sub(
                 rf"(\n\s*|^)from {lib}(\.|\s+)",
                 rf"\1from {namespace}.{lib}\2",
                 text,
