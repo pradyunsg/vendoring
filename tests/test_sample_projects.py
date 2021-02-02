@@ -1,5 +1,6 @@
 """Test the various bits of functionality, through sample projects."""
 
+import os
 import linecache
 import shutil
 import traceback
@@ -33,29 +34,29 @@ def test_basic(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "packaging",
-        vendored / "packaging.pyi",
+    assert sorted(os.listdir(vendored)) == [
+        "packaging",
+        "packaging.pyi",
     ]
 
     packaging = vendored / "packaging"
     assert packaging.exists()
-    assert sorted(packaging.iterdir()) == [
-        packaging / "LICENSE",
-        packaging / "LICENSE.APACHE",
-        packaging / "LICENSE.BSD",
-        packaging / "__about__.py",
-        packaging / "__init__.py",
-        packaging / "_compat.py",
-        packaging / "_structures.py",
-        packaging / "_typing.py",
-        packaging / "markers.py",
-        packaging / "py.typed",
-        packaging / "requirements.py",
-        packaging / "specifiers.py",
-        packaging / "tags.py",
-        packaging / "utils.py",
-        packaging / "version.py",
+    assert sorted(os.listdir(packaging)) == [
+        "LICENSE",
+        "LICENSE.APACHE",
+        "LICENSE.BSD",
+        "__about__.py",
+        "__init__.py",
+        "_compat.py",
+        "_structures.py",
+        "_typing.py",
+        "markers.py",
+        "py.typed",
+        "requirements.py",
+        "specifiers.py",
+        "tags.py",
+        "utils.py",
+        "version.py",
     ]
 
 
@@ -68,13 +69,13 @@ def test_import_rewriting(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "retrying.LICENSE",
-        vendored / "retrying.py",
-        vendored / "retrying.pyi",
-        vendored / "six.LICENSE",
-        vendored / "six.py",
-        vendored / "six.pyi",
+    assert sorted(os.listdir(vendored)) == [
+        "retrying.LICENSE",
+        "retrying.py",
+        "retrying.pyi",
+        "six.LICENSE",
+        "six.py",
+        "six.pyi",
     ]
 
 
@@ -87,17 +88,17 @@ def test_licenses(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "appdirs.LICENSE.txt",
-        vendored / "appdirs.py",
-        vendored / "appdirs.pyi",
-        vendored / "msgpack",
-        vendored / "msgpack.pyi",
-        vendored / "six.LICENSE",
-        vendored / "six.py",
-        vendored / "six.pyi",
-        vendored / "webencodings",
-        vendored / "webencodings.pyi",
+    assert sorted(os.listdir(vendored)) == [
+        "appdirs.LICENSE.txt",
+        "appdirs.py",
+        "appdirs.pyi",
+        "msgpack",
+        "msgpack.pyi",
+        "six.LICENSE",
+        "six.py",
+        "six.pyi",
+        "webencodings",
+        "webencodings.pyi",
     ]
 
     assert (vendored / "msgpack" / "COPYING").exists()
@@ -113,10 +114,10 @@ def test_patches(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "appdirs.LICENSE.txt",
-        vendored / "appdirs.py",
-        vendored / "appdirs.pyi",
+    assert sorted(os.listdir(vendored)) == [
+        "appdirs.LICENSE.txt",
+        "appdirs.py",
+        "appdirs.pyi",
     ]
 
     # Just check a single patched line
@@ -133,10 +134,10 @@ def test_protected_files(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "README.md",
-        vendored / "packaging",
-        vendored / "packaging.pyi",
+    assert sorted(os.listdir(vendored)) == [
+        "README.md",
+        "packaging",
+        "packaging.pyi",
     ]
 
 
@@ -149,10 +150,10 @@ def test_transformations(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "pkg_resources",
-        vendored / "pkg_resources.pyi",
-        vendored / "setuptools.LICENSE",
+    assert sorted(os.listdir(vendored)) == [
+        "pkg_resources",
+        "pkg_resources.pyi",
+        "setuptools.LICENSE",
     ]
 
     line = linecache.getline(str(vendored / "pkg_resources" / "__init__.py"), 57)
@@ -171,19 +172,19 @@ def test_typing_fun(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(vendored.iterdir()) == [
-        vendored / "appdirs.LICENSE.txt",
-        vendored / "appdirs.py",
-        vendored / "contextlib2.LICENSE.txt",
-        vendored / "contextlib2.py",
-        vendored / "six",
-        vendored / "six.LICENSE",
-        vendored / "six.py",
+    assert sorted(os.listdir(vendored)) == [
+        "appdirs.LICENSE.txt",
+        "appdirs.py",
+        "contextlib2.LICENSE.txt",
+        "contextlib2.py",
+        "six",
+        "six.LICENSE",
+        "six.py",
     ]
 
     six = vendored / "six"
-    assert sorted(six.iterdir()) == [
-        six / "__init__.pyi",
-        six / "moves",
+    assert sorted(os.listdir(six)) == [
+        "__init__.pyi",
+        "moves",
     ]
     assert (six / "moves" / "__init__.pyi").exists()
