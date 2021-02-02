@@ -58,19 +58,22 @@ def rewrite_file_imports(
     if namespace != "":
         for lib in vendored_libs:
             text = re.sub(
-                rf"(\n\s*|^)import {lib}(\n\s*)",
+                rf"^(\s*)import {lib}(\s|$)",
                 rf"\1from {namespace} import {lib}\2",
                 text,
+                flags=re.MULTILINE,
             )
             text = re.sub(
-                rf"(\n\s*|^)import {lib}(\.\S+)(?=\s+as)",
+                rf"^(\s*)import {lib}(\.\S+)(?=\s+as)",
                 rf"\1import {namespace}.{lib}\2",
                 text,
+                flags=re.MULTILINE,
             )
             text = re.sub(
-                rf"(\n\s*|^)from {lib}(\.|\s+)",
+                rf"^(\s*)from {lib}(\.|\s)",
                 rf"\1from {namespace}.{lib}\2",
                 text,
+                flags=re.MULTILINE,
             )
 
     item.write_text(text, encoding="utf-8")

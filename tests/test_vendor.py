@@ -7,6 +7,8 @@ from vendoring.tasks.vendor import rewrite_file_imports
 _SUPPORTED_IMPORT_FORMS = textwrap.dedent(
     """\
         import other
+        import other # with comment
+        import other as somethingelse
         from other import name1
         from other.name2 import name3
         import other.name4 as name5
@@ -29,6 +31,8 @@ class TestRewriteFileImports:
         assert path.read_text() == textwrap.dedent(
             """\
                 from namespace import other
+                from namespace import other # with comment
+                from namespace import other as somethingelse
                 from namespace.other import name1
                 from namespace.other.name2 import name3
                 import namespace.other.name4 as name5
@@ -62,6 +66,8 @@ class TestRewriteFileImports:
         assert path.read_text() == textwrap.dedent(
             """\
                 from namespace import other
+                from namespace import other # with comment
+                from namespace import other as somethingelse
                 from namespace.other import NAME1
                 from namespace.other.NAME2 import NAME3
                 import namespace.other.NAME4 as NAME5
@@ -82,6 +88,8 @@ class TestRewriteFileImports:
         assert path.read_text() == textwrap.dedent(
             """\
                 import other
+                import other # with comment
+                import other as somethingelse
                 from other import NAME1
                 from other.NAME2 import NAME3
                 import other.NAME4 as NAME5
