@@ -46,9 +46,6 @@ def rewrite_file_imports(
     additional_substitutions: List[Dict[str, str]],
 ) -> None:
     """Rewrite 'import xxx' and 'from xxx import' for vendored_libs."""
-    if namespace == "":
-        # If an empty namespace is provided, we don't rewrite imports.
-        return
 
     text = item.read_text(encoding="utf-8")
 
@@ -57,17 +54,19 @@ def rewrite_file_imports(
         pattern, substitution = di["match"], di["replace"]
         text = re.sub(pattern, substitution, text)
 
-    for lib in vendored_libs:
-        text = re.sub(
-            rf"(\n\s*|^)import {lib}(\n\s*)",
-            rf"\1from {namespace} import {lib}\2",
-            text,
-        )
-        text = re.sub(
-            rf"(\n\s*|^)from {lib}(\.|\s+)",
-            rf"\1from {namespace}.{lib}\2",
-            text,
-        )
+    # If an empty namespace is provided, we don't rewrite imports.
+    if namespace != "":
+        for lib in vendored_libs:
+            text = re.sub(
+                rf"(\n\s*|^)import {lib}(\n\s*)",
+                rf"\1from {namespace} import {lib}\2",
+                text,
+            )
+            text = re.sub(
+                rf"(\n\s*|^)from {lib}(\.|\s+)",
+                rf"\1from {namespace}.{lib}\2",
+                text,
+            )
 
     item.write_text(text, encoding="utf-8")
 
