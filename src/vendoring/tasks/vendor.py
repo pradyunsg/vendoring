@@ -54,6 +54,7 @@ def rewrite_file_imports(
         pattern, substitution = di["match"], di["replace"]
         text = re.sub(pattern, substitution, text)
 
+    # If an empty namespace is provided, we don't rewrite imports.
     if namespace != "":
         for lib in vendored_libs:
             text = re.sub(
