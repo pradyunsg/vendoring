@@ -1,7 +1,7 @@
 """Test the various bits of functionality, through sample projects."""
 
-import os
 import linecache
+import os
 import shutil
 import traceback
 from pathlib import Path
