@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import requests
-from packaging.version import VERSION_PATTERN
+from packaging.version import VERSION_PATTERN, Version
 
 from vendoring.configuration import Configuration
 from vendoring.errors import RequirementsError, VendoringError
@@ -80,7 +80,9 @@ def update_requirements(config: Configuration, package: Optional[str]) -> None:
     packages = parse_pinned_packages(requirements)
     for pkg in packages:
         if package is None or pkg.name == package:
-            pkg.version = determine_latest_release(pkg.name)
+            latest = determine_latest_release(pkg.name)
+            if Version(latest) != Version(pkg.version):
+                pkg.version = latest
 
     UI.log(f"Rewriting {requirements}")
     with requirements.open("w", encoding="utf-8") as f:
