@@ -46,5 +46,7 @@ def generate_stubs(config: Configuration, libraries: List[str]) -> None:
 
     for lib in libraries:
         for rel_location, import_name in determine_stub_files(lib, typing_stubs):
+            if (destination / lib / "py.typed").is_file():  # Already have types.
+                continue
             stub_location = destination / rel_location
             write_stub(stub_location, import_name)
