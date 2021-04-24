@@ -36,10 +36,7 @@ def test_basic(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(os.listdir(vendored)) == [
-        "packaging",
-        "packaging.pyi",
-    ]
+    assert sorted(os.listdir(vendored)) == ["packaging"]
 
     packaging = vendored / "packaging"
     assert packaging.exists()
@@ -140,11 +137,7 @@ def test_protected_files(tmp_path, monkeypatch):
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(os.listdir(vendored)) == [
-        "README.md",
-        "packaging",
-        "packaging.pyi",
-    ]
+    assert sorted(os.listdir(vendored)) == ["README.md", "packaging"]
 
 
 def test_transformations(tmp_path, monkeypatch):
