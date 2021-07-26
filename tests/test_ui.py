@@ -1,10 +1,12 @@
+from contextlib import redirect_stdout
+from io import BytesIO, TextIOWrapper
 from unittest import mock
 
 import pytest
 from click import style
 
 from vendoring.errors import VendoringError
-from vendoring.ui import _UserInterface
+from vendoring.ui import UI, _UserInterface
 
 
 # --------------------------------------------------------------------------------------
@@ -193,3 +195,30 @@ def test_task_failure_verbose(ui, verbose):
         mock.call("  Works as expected"),
         mock.call("  " + style("Done!", fg="green")),
     ]
+
+
+def test_spinner_encodings():
+    buffer = BytesIO()
+    stdout = TextIOWrapper(buffer, encoding="utf-8")
+
+    with redirect_stdout(stdout):
+        with UI.task("Thinking"):
+            for _ in range(6):
+                UI.log("")
+
+    expected = "Thinking... ◴\b◷\b◶\b◵\b◴\b◷\bDone!"
+    assert buffer.getvalue().decode("UTF-8").rstrip() == expected
+
+
+@pytest.mark.parametrize("encoding", ["cp1252", "cp1253", "latin-1"])
+def test_spinner_encodings_non_utf8(encoding: str):
+    buffer = BytesIO()
+    stdout = TextIOWrapper(buffer, encoding=encoding)
+
+    with redirect_stdout(stdout):
+        with UI.task("Thinking"):
+            for _ in range(6):
+                UI.log("")
+
+    expected = "Thinking... /\b-\b\\\b|\b/\b-\bDone!"
+    assert buffer.getvalue().decode("UTF-8").rstrip() == expected

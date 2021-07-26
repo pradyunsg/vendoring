@@ -1,6 +1,7 @@
 """Maintains state and output of the user interface.
 """
 
+import sys
 import traceback
 from contextlib import contextmanager
 from itertools import cycle
@@ -13,12 +14,26 @@ from vendoring.errors import VendoringError
 
 
 class _UserInterface:
-    _spinner_frames = [
-        "◴",
-        "◷",
-        "◶",
-        "◵",
-    ]
+    @property
+    def _spinner_frames(self) -> List[str]:
+        frames = [
+            "◴",
+            "◷",
+            "◶",
+            "◵",
+        ]
+
+        try:
+            "".join(frames).encode(sys.stdout.encoding)
+        except UnicodeEncodeError:
+            frames = [
+                "/",
+                "-",
+                "\\",
+                "|",
+            ]
+
+        return frames
 
     def __init__(self) -> None:
         self.verbose = False
