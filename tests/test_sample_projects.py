@@ -152,18 +152,36 @@ def test_transformations(tmp_path, monkeypatch):
     assert sorted(os.listdir(vendored)) == [
         "pkg_resources",
         "pkg_resources.pyi",
-        "pygments",
-        "pygments.pyi",
-        "setuptools.LICENSE",
+        "setuptools",
+        "setuptools.pyi",
     ]
 
-    pygments = vendored / "pygments"
-    assert sorted(os.listdir(pygments / "styles")) == [
-        "__init__.py",
-    ]
-    assert sorted(os.listdir(pygments / "lexers")) == [
-        "__init__.py",
-        "python.py",
+    assert sorted(os.listdir(vendored / "setuptools")) == [
+        "LICENSE",
+        "archive_util.py",
+        "build_meta.py",
+        "command",
+        "config.py",
+        "dep_util.py",
+        "depends.py",
+        "dist.py",
+        "distutils_patch.py",
+        "errors.py",
+        "extension.py",
+        "extern",
+        "glob.py",
+        "installer.py",
+        "launch.py",
+        "lib2to3_ex.py",
+        "monkey.py",
+        "msvc.py",
+        "namespaces.py",
+        "package_index.py",
+        "sandbox.py",
+        "ssl_support.py",
+        "unicode_utils.py",
+        "version.py",
+        "windows_support.py",
     ]
 
     line = linecache.getline(str(vendored / "pkg_resources" / "__init__.py"), 57)

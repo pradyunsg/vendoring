@@ -9,14 +9,13 @@ substitute = [
   { match='pkg_resources\.extern', replace="transformations.vendored" },
 ]
 drop = [
-  # contains unnecessary scripts
-  "bin/",
-  # unneeded parts of setuptools
-  "easy_install.py",
-  "setuptools",
-  "pkg_resources/_vendor/",
-  "pkg_resources/extern/",
-  # uneeded parts of pygments
-  "pygments/styles/[!_]*.py",  # glob
-  '^pygments/lexers/(?!python|__init__).*\.py$',  # regex
+  "bin/",                           # top-level folder
+  "pkg_resources/_vendor/",         # non-top-level folder
+  "pkg_resources/extern/",          # non-top-level folder
+  "easy_install.py",                # top-level file
+  "setuptools/wheel.py",            # non-top-level file
+  "setuptools/_*",                  # glob
+  "setuptools/*.exe",               # glob
+  '^setuptools/py\d\dcompat\.py$',  # regex
+  '^setuptools/.+\.tmpl$',          # regex
 ]
