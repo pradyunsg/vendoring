@@ -16,4 +16,7 @@ drop = [
   "setuptools",
   "pkg_resources/_vendor/",
   "pkg_resources/extern/",
+  # uneeded parts of pygments
+  "pygments/styles/[!_]*.py",  # glob
+  '^pygments/lexers/(?!python|__init__).*\.py$',  # regex
 ]

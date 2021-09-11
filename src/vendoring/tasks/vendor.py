@@ -8,6 +8,7 @@ from typing import Dict, List
 from vendoring.configuration import Configuration
 from vendoring.ui import UI
 from vendoring.utils import remove_all as _remove_all
+from vendoring.utils import remove_matching_regex as _remove_matching_regex
 from vendoring.utils import run
 
 
@@ -27,15 +28,22 @@ def download_libraries(requirements: Path, destination: Path) -> None:
     run(command, working_directory=None)
 
 
+def _looks_like_glob(pattern: str) -> bool:
+    return "*" in pattern or "?" in pattern or "[" in pattern
+
+
 def remove_unnecessary_items(destination: Path, drop_paths: List[str]) -> None:
     # Cleanup any metadata directories created.
     _remove_all(destination.glob("*.dist-info"))
     _remove_all(destination.glob("*.egg-info"))
 
-    for location in drop_paths:
-        if "*" in location:
-            _remove_all(destination.glob(location))
+    for pattern in drop_paths:
+        if pattern.startswith("^"):
+            _remove_matching_regex(destination, pattern)
+        elif _looks_like_glob(pattern):
+            _remove_all(destination.glob(pattern))
         else:
+            location = pattern
             _remove_all([destination / location])
 
 

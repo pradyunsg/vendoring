@@ -1,3 +1,5 @@
+import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -16,6 +18,21 @@ def remove_all(items_to_cleanup: Iterable[Path]) -> None:
             shutil.rmtree(item)
         else:
             item.unlink()
+
+
+def remove_matching_regex(path: Path, pattern: str) -> None:
+    compiled = re.compile(pattern)
+    for dirpath, dirnames, filenames in os.walk(path):
+        rel_dirpath = os.path.relpath(dirpath, path)
+        # Delete matching folders
+        for dirname in dirnames:
+            if compiled.match(os.path.join(rel_dirpath, dirname)):
+                dirnames.remove(dirname)
+                shutil.rmtree(os.path.join(dirpath, dirname))
+        # Delete matching files
+        for filename in filenames:
+            if compiled.match(os.path.join(rel_dirpath, filename)):
+                os.remove(os.path.join(dirpath, filename))
 
 
 def run(command: List[str], *, working_directory: Optional[Path]) -> None:

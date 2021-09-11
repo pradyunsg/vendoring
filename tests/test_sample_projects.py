@@ -159,7 +159,18 @@ def test_transformations(tmp_path, monkeypatch):
     assert sorted(os.listdir(vendored)) == [
         "pkg_resources",
         "pkg_resources.pyi",
+        "pygments",
+        "pygments.pyi",
         "setuptools.LICENSE",
+    ]
+
+    pygments = vendored / "pygments"
+    assert sorted(os.listdir(pygments / "styles")) == [
+        "__init__.py",
+    ]
+    assert sorted(os.listdir(pygments / "lexers")) == [
+        "__init__.py",
+        "python.py",
     ]
 
     line = linecache.getline(str(vendored / "pkg_resources" / "__init__.py"), 57)
