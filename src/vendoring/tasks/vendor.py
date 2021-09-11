@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, List
 
 from vendoring.configuration import Configuration
+from vendoring.errors import VendoringError
 from vendoring.ui import UI
 from vendoring.utils import remove_all as _remove_all
 from vendoring.utils import remove_matching_regex as _remove_matching_regex
@@ -65,18 +66,32 @@ def rewrite_file_imports(
     # If an empty namespace is provided, we don't rewrite imports.
     if namespace != "":
         for lib in vendored_libs:
+            # Normal case "import a"
             text = re.sub(
                 rf"^(\s*)import {lib}(\s|$)",
                 rf"\1from {namespace} import {lib}\2",
                 text,
                 flags=re.MULTILINE,
             )
+            # Special case "import a.b as b"
             text = re.sub(
                 rf"^(\s*)import {lib}(\.\S+)(?=\s+as)",
                 rf"\1import {namespace}.{lib}\2",
                 text,
                 flags=re.MULTILINE,
             )
+
+            # Error on "import a.b": this cannot be rewritten
+            # (except for the special case handled above)
+            match = re.search(
+                rf"^\s*(import {lib}\.\S+)",
+                text,
+                flags=re.MULTILINE,
+            )
+            if match:
+                raise VendoringError(f"Cannot rewrite '{match.group(1)}' in {item}")
+
+            # Normal case "from a import b"
             text = re.sub(
                 rf"^(\s*)from {lib}(\.|\s)",
                 rf"\1from {namespace}.{lib}\2",
