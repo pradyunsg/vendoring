@@ -10,6 +10,8 @@ This tool is based off the overgrown `invoke` task, breaking it out into a dedic
 
 ## Should I use it?
 
+This tool has no stability promises -- it has only one intended user: pip. There may be unannounced changes to this codebase at any time, as long as the intended user (i.e. the pip project) is prepared for those changes.
+
 As a general rule of thumb, if the project is going to be a PyPI package, it should not use this tool.
 
 Many downstream redistributors have policies against this kind of bundling of dependencies, which means that they'll patch your software to debundle it. This can cause various kinds of issues, due to violations of assumptions being made about where the dependencies are available/which versions are being used. These issues result in difficult-to-debug errors, which are fairly difficult to communicate with end users.
