@@ -13,7 +13,7 @@ def remove_all(items_to_cleanup: Iterable[Path]) -> None:
         if not item.exists():
             continue
         if item.is_dir() and not item.is_symlink():
-            shutil.rmtree(str(item))
+            shutil.rmtree(item)
         else:
             item.unlink()
 
