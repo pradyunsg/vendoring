@@ -18,23 +18,6 @@ _SUPPORTED_IMPORT_FORMS = textwrap.dedent(
     """
 )
 
-_UNSUPPORTED_IMPORT_FORMS = [
-    textwrap.dedent(
-        """\
-            import other
-            import other.shouldfail
-            import somethingelse
-        """
-    ),
-    textwrap.dedent(
-        """\
-            import other
-            import other.shouldfail # with comment
-            import somethingelse
-        """
-    ),
-]
-
 
 class TestRewriteFileImports:
     def test_basic(self, tmp_path):
@@ -116,14 +99,28 @@ class TestRewriteFileImports:
             """
         )
 
-    def test_error_on_unsupported_import(self, tmp_path):
+
+class TestCannotRewriteFileImports:
+    def test_dot_import_without_alias(self, tmp_path):
         path = tmp_path / "module.py"
-        for format in _UNSUPPORTED_IMPORT_FORMS:
-            path.write_text(format)
-            with pytest.raises(VendoringError):
-                rewrite_file_imports(
-                    path,
-                    namespace="namespace",
-                    vendored_libs=["other"],
-                    additional_substitutions=[],
-                )
+        path.write_text("import other.shouldfail\n")
+
+        with pytest.raises(VendoringError):
+            rewrite_file_imports(
+                path,
+                namespace="namespace",
+                vendored_libs=["other"],
+                additional_substitutions=[],
+            )
+
+    def test_dot_import_without_alias_but_with_comment(self, tmp_path):
+        path = tmp_path / "module.py"
+        path.write_text("import other.shouldfail  # comment\n")
+
+        with pytest.raises(VendoringError):
+            rewrite_file_imports(
+                path,
+                namespace="namespace",
+                vendored_libs=["other"],
+                additional_substitutions=[],
+            )
