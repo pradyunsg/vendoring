@@ -26,12 +26,16 @@ def remove_matching_regex(path: Path, pattern: str) -> None:
         rel_dirpath = Path(os.path.relpath(dirpath, path))
         # Delete matching folders
         for dirname in dirnames:
-            if compiled.match((rel_dirpath / dirname).as_posix()):
+            path_to_match = (rel_dirpath / dirname).as_posix()
+            print("d", path_to_match)
+            if compiled.match(path_to_match):
                 dirnames.remove(dirname)
                 shutil.rmtree(os.path.join(dirpath, dirname))
         # Delete matching files
         for filename in filenames:
-            if compiled.match((rel_dirpath / filename).as_posix()):
+            path_to_match = (rel_dirpath / filename).as_posix()
+            print("f", path_to_match)
+            if compiled.match(path_to_match):
                 os.remove(os.path.join(dirpath, filename))
 
 
