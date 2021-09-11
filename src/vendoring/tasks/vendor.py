@@ -165,6 +165,10 @@ def vendor_libraries(config: Configuration) -> List[str]:
     # Detect what got downloaded.
     vendored_libs = detect_vendored_libs(destination, config.protected_files)
 
+    # Apply user provided patches.
+    if config.patches_dir:
+        apply_patches(config.patches_dir, working_directory=config.base_directory)
+
     # Rewrite the imports we want changed.
     rewrite_imports(
         destination,
@@ -172,9 +176,5 @@ def vendor_libraries(config: Configuration) -> List[str]:
         vendored_libs,
         config.substitute,
     )
-
-    # Apply user provided patches.
-    if config.patches_dir:
-        apply_patches(config.patches_dir, working_directory=config.base_directory)
 
     return vendored_libs
