@@ -89,7 +89,16 @@ def rewrite_file_imports(
                 flags=re.MULTILINE,
             )
             if match:
-                raise VendoringError(f"Cannot rewrite '{match.group(1)}' in {item}")
+                line_number = text.count("\n", 0, match.start()) + 1
+                raise VendoringError(
+                    "Encountered import that cannot be transformed for a namespace.\n"
+                    f'File "{item}", line {line_number}\n'
+                    f"  {match.group(1)}\n"
+                    "\n"
+                    "You will need to add a patch, that adapts the code to avoid a "
+                    "`import dotted.name` style import here; since those cannot be "
+                    "transformed for importing via a namespace."
+                )
 
             # Normal case "from a import b"
             text = re.sub(
