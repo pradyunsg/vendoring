@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Optional
@@ -61,6 +62,7 @@ def sync(verbose: bool, location: Optional[str]) -> None:
             generate_stubs(config, libraries)
     except VendoringError as e:
         UI.show_error(e)
+        sys.exit(1)
 
 
 @main.command()
@@ -78,3 +80,4 @@ def update(verbose: bool, location: Path, package: Optional[str]) -> None:
             update_requirements(config, package)
     except VendoringError as e:
         UI.show_error(e)
+        sys.exit(1)
