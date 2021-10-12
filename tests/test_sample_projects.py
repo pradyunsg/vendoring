@@ -69,13 +69,24 @@ def test_import_rewriting(tmp_path, monkeypatch):
     vendored = tmp_path / "vendored"
     assert vendored.exists()
     assert sorted(os.listdir(vendored)) == [
-        "retrying.LICENSE",
-        "retrying.py",
-        "retrying.pyi",
+        "packaging",
         "six.LICENSE",
         "six.py",
         "six.pyi",
     ]
+
+    interesting_file = vendored / "packaging" / "requirements.py"
+    interesting_lineno = 12
+    with interesting_file.open() as f:
+        iterable = iter(f)
+        for _ in range(interesting_lineno - 1):
+            next(iterable)
+        interesting_line = next(iterable)
+
+    expected_line = (
+        "from import_rewriting.vendored.six.moves.urllib import parse as urlparse\n"
+    )
+    assert interesting_line == expected_line
 
 
 def test_licenses(tmp_path, monkeypatch):
@@ -91,16 +102,15 @@ def test_licenses(tmp_path, monkeypatch):
         "appdirs.LICENSE.txt",
         "appdirs.py",
         "appdirs.pyi",
-        "msgpack",
-        "msgpack.pyi",
         "six.LICENSE",
         "six.py",
         "six.pyi",
+        "tomli",
         "webencodings",
         "webencodings.pyi",
     ]
 
-    assert (vendored / "msgpack" / "COPYING").exists()
+    assert (vendored / "tomli" / "LICENSE").exists()
     assert (vendored / "webencodings" / "LICENSE").exists()
 
 

@@ -1,9 +1,8 @@
 import shutil
-import tarfile
 import tempfile
 import zipfile
 from pathlib import Path
-from typing import Dict, Iterable, Union
+from typing import Dict, Iterable
 
 import requests
 
@@ -11,17 +10,14 @@ from vendoring.configuration import Configuration
 from vendoring.ui import UI
 from vendoring.utils import run
 
-SDistMember = Union[tarfile.TarInfo, zipfile.ZipInfo]
-SDistArchive = Union[tarfile.TarFile, zipfile.ZipFile]
 
-
-def download_sdists(location: Path, requirements: Path) -> None:
+def download_wheels(location: Path, requirements: Path) -> None:
     cmd = [
         "pip",
         "download",
         "-r",
         str(requirements),
-        "--no-binary",
+        "--only-binary",
         ":all:",
         "--no-deps",
         "--dest",
@@ -42,12 +38,12 @@ def get_library_name_from_directory(dirname: str) -> str:
 
 def extract_license_member(
     destination: Path,
-    tar: SDistArchive,
-    member: SDistMember,
+    wheel: zipfile.ZipFile,
+    member: zipfile.ZipInfo,
     name: str,
     license_directories: Dict[str, str],
 ) -> None:
-    mpath = Path(name)  # relative path inside the sdist
+    mpath = Path(name)  # relative path inside the wheel
 
     dirname = list(mpath.parents)[-2].name  # -1 is .
     libname = get_library_name_from_directory(dirname)
@@ -57,26 +53,18 @@ def extract_license_member(
     )
 
     UI.log("Extracting {} into {}".format(name, dest.relative_to(destination)))
-    try:
-        fileobj = tar.extractfile(member)  # type: ignore
-        dest.write_bytes(fileobj.read())  # type: ignore
-    except AttributeError:  # zipfile
-        dest.write_bytes(tar.read(member))  # type: ignore
+    dest.write_bytes(wheel.read(member))
 
 
 def find_and_extract_license(
     destination: Path,
-    tar: SDistArchive,
-    members: Iterable[SDistMember],
+    tar: zipfile.ZipFile,
+    members: Iterable[zipfile.ZipInfo],
     license_directories: Dict[str, str],
 ) -> bool:
     found = False
     for member in members:
-        try:
-            license_directories,
-            name = member.name  # type: ignore
-        except AttributeError:  # zipfile
-            name = member.filename  # type: ignore
+        name = member.filename
         if "LICENSE" in name or "COPYING" in name:
             if "/test" in name:
                 # some testing licenses in html5lib and distlib
@@ -112,12 +100,12 @@ def download_from_url(url: str, dest: Path) -> None:
 
 def get_license_fallback(
     destination: Path,
-    sdist_name: str,
+    wheel_name: str,
     license_directories: Dict[str, str],
     license_fallback_urls: Dict[str, str],
 ) -> None:
     """Hardcoded license URLs. Check when updating if those are still needed"""
-    libname = get_library_name_from_directory(sdist_name)
+    libname = get_library_name_from_directory(wheel_name)
     if libname not in license_fallback_urls:
         raise ValueError("No hardcoded URL for {} license".format(libname))
 
@@ -128,38 +116,25 @@ def get_license_fallback(
     download_from_url(url, dest)
 
 
-def extract_license_from_sdist(
+def extract_license_from_wheel(
     destination: Path,
-    sdist: Path,
+    wheel: Path,
     license_directories: Dict[str, str],
     license_fallback_urls: Dict[str, str],
 ) -> None:
-    def extract_from_source_tarfile(sdist: Path) -> bool:
-        ext = sdist.suffixes[-1][1:]
-        with tarfile.open(sdist, mode="r:{}".format(ext)) as tar:
-            return find_and_extract_license(
-                destination, tar, tar.getmembers(), license_directories
-            )
+    assert wheel.suffix == ".whl"
 
-    def extract_from_source_zipfile(sdist: Path) -> bool:
-        with zipfile.ZipFile(sdist) as zip:
-            return find_and_extract_license(
-                destination, zip, zip.infolist(), license_directories
-            )
-
-    if sdist.suffixes[-2:-1] == [".tar"]:
-        found = extract_from_source_tarfile(sdist)
-    elif sdist.suffixes[-1] == ".zip":
-        found = extract_from_source_zipfile(sdist)
-    else:
-        raise NotImplementedError("new sdist type!")
+    with zipfile.ZipFile(wheel) as zip:
+        found = find_and_extract_license(
+            destination, zip, zip.infolist(), license_directories
+        )
 
     if found:
         return
 
-    UI.log("License not found in {}".format(sdist.name))
+    UI.log("License not found in {}".format(wheel.name))
     get_license_fallback(
-        destination, sdist.name, license_directories, license_fallback_urls
+        destination, wheel.name, license_directories, license_fallback_urls
     )
 
 
@@ -170,11 +145,11 @@ def fetch_licenses(config: Configuration) -> None:
     requirements = config.requirements
 
     tmp_dir = Path(tempfile.gettempdir(), "vendoring-downloads")
-    download_sdists(tmp_dir, requirements)
+    download_wheels(tmp_dir, requirements)
 
-    for sdist in tmp_dir.iterdir():
-        extract_license_from_sdist(
-            destination, sdist, license_directories, license_fallback_urls
+    for wheel in tmp_dir.iterdir():
+        extract_license_from_wheel(
+            destination, wheel, license_directories, license_fallback_urls
         )
 
     shutil.rmtree(tmp_dir)
