@@ -1,8 +1,11 @@
 import shutil
+import tarfile
 import tempfile
 import zipfile
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict, Iterator, List, Optional, Tuple, Union
 
 import requests
 
@@ -10,132 +13,137 @@ from vendoring.configuration import Configuration
 from vendoring.ui import UI
 from vendoring.utils import run
 
-
-def download_wheels(location: Path, requirements: Path) -> None:
-    cmd = [
-        "pip",
-        "download",
-        "-r",
-        str(requirements),
-        "--only-binary",
-        ":all:",
-        "--no-deps",
-        "--dest",
-        str(location),
-    ]
-    run(cmd, working_directory=None)
+Archive = Union[tarfile.TarFile, zipfile.ZipFile]
+ArchiveMember = Union[tarfile.TarInfo, zipfile.ZipInfo]
+ArchiveMembers = Union[List[tarfile.TarInfo], List[zipfile.ZipInfo]]
 
 
-def get_library_name_from_directory(dirname: str) -> str:
-    """Reconstruct the library name without it's version"""
+def _get_filename_from_archive_member(member: ArchiveMember) -> str:
+    if isinstance(member, tarfile.TarInfo):
+        return member.name
+    return member.filename
+
+
+@contextmanager
+def _open_archive(artifact: Path) -> Iterator[Tuple[Archive, ArchiveMembers]]:
+    if artifact.suffix in [".zip", ".whl"]:
+        with zipfile.ZipFile(artifact) as zip_archive:
+            yield zip_archive, zip_archive.infolist()
+    elif artifact.suffix == ".gz":
+        assert artifact.suffixes[-2:] == [".tar", ".gz"]
+        with tarfile.open(artifact) as tarball:
+            yield tarball, tarball.getmembers()
+    else:
+        raise Exception(f"Unknown archive extension: {artifact.name}")
+
+
+def _get_library_name_from_artifact_name(artifact_name: str) -> str:
+    """Reconstruct the library name, from the name of an artifact containing it."""
     parts = []
-    for part in dirname.split("-"):
+    for part in artifact_name.split("-"):
         if part[0].isdigit():
             break
         parts.append(part)
     return "-".join(parts)
 
 
-def extract_license_member(
-    destination: Path,
-    wheel: zipfile.ZipFile,
-    member: zipfile.ZipInfo,
-    name: str,
-    license_directories: Dict[str, str],
-) -> None:
-    mpath = Path(name)  # relative path inside the wheel
+@dataclass
+class LicenseExtractor:
+    destination: Path
+    license_directories: Dict[str, str]
+    license_fallback_urls: Dict[str, str]
 
-    dirname = list(mpath.parents)[-2].name  # -1 is .
-    libname = get_library_name_from_directory(dirname)
+    @staticmethod
+    def download_from_url(url: str, dest: Path) -> None:
+        UI.log(f"Downloading {url}")
+        r = requests.get(url, allow_redirects=True)
+        r.raise_for_status()
+        dest.write_bytes(r.content)
 
-    dest = get_license_destination(
-        destination, libname, mpath.name, license_directories
-    )
+    @staticmethod
+    def find_licenses(members: ArchiveMembers) -> Iterator[ArchiveMember]:
+        for member in members:
+            name = _get_filename_from_archive_member(member)
 
-    UI.log("Extracting {} into {}".format(name, dest.relative_to(destination)))
-    dest.write_bytes(wheel.read(member))
+            if "LICENSE" in name or "COPYING" in name:
+                if "/test" in name:  # some testing licenses in html5lib and distlib
+                    UI.log(f"Ignoring {name}")
+                    continue
+                yield member
 
+    def get_license_destination(self, library: str, filename: str) -> Path:
+        """Given the (reconstructed) library name, find appropriate destination"""
+        assert "/" not in filename, filename
+        if (normal := self.destination / library).is_dir():
+            return normal / filename
+        if (lowercase := self.destination / library.lower()).is_dir():
+            return lowercase / filename
+        if library in self.license_directories:
+            return self.destination / self.license_directories[library] / filename
 
-def find_and_extract_license(
-    destination: Path,
-    tar: zipfile.ZipFile,
-    members: Iterable[zipfile.ZipInfo],
-    license_directories: Dict[str, str],
-) -> bool:
-    found = False
-    for member in members:
-        name = member.filename
-        if "LICENSE" in name or "COPYING" in name:
-            if "/test" in name:
-                # some testing licenses in html5lib and distlib
-                UI.log("Ignoring {}".format(name))
-                continue
-            found = True
-            extract_license_member(destination, tar, member, name, license_directories)
-    return found
+        # fallback to library.LICENSE (used for non-import-package libraries)
+        return self.destination / f"{library}.{filename}"
 
+    def extract_license_member(
+        self, artifact: Path, archive: Archive, member: ArchiveMember
+    ) -> None:
 
-def get_license_destination(
-    destination: Path, libname: str, filename: str, license_directories: Dict[str, str]
-) -> Path:
-    """Given the (reconstructed) library name, find appropriate destination"""
-    normal = destination / libname
-    if normal.is_dir():
-        return normal / filename
-    lowercase = destination / libname.lower()
-    if lowercase.is_dir():
-        return lowercase / filename
-    if libname in license_directories:
-        return destination / license_directories[libname] / filename
-    # fallback to libname.LICENSE (used for nondirs)
-    return destination / "{}.{}".format(libname, filename)
+        library_name = _get_library_name_from_artifact_name(artifact.name)
+        license_filename = Path(_get_filename_from_archive_member(member)).name
+        dest = self.get_license_destination(library_name, license_filename)
 
-
-def download_from_url(url: str, dest: Path) -> None:
-    UI.log("Downloading {}".format(url))
-    r = requests.get(url, allow_redirects=True)
-    r.raise_for_status()
-    dest.write_bytes(r.content)
-
-
-def get_license_fallback(
-    destination: Path,
-    wheel_name: str,
-    license_directories: Dict[str, str],
-    license_fallback_urls: Dict[str, str],
-) -> None:
-    """Hardcoded license URLs. Check when updating if those are still needed"""
-    libname = get_library_name_from_directory(wheel_name)
-    if libname not in license_fallback_urls:
-        raise ValueError("No hardcoded URL for {} license".format(libname))
-
-    url = license_fallback_urls[libname]
-    _, _, name = url.rpartition("/")
-    dest = get_license_destination(destination, libname, name, license_directories)
-
-    download_from_url(url, dest)
-
-
-def extract_license_from_wheel(
-    destination: Path,
-    wheel: Path,
-    license_directories: Dict[str, str],
-    license_fallback_urls: Dict[str, str],
-) -> None:
-    assert wheel.suffix == ".whl"
-
-    with zipfile.ZipFile(wheel) as zip:
-        found = find_and_extract_license(
-            destination, zip, zip.infolist(), license_directories
+        UI.log(
+            f"Extracting {license_filename} into {dest.relative_to(self.destination)}"
         )
 
-    if found:
-        return
+        # Oh, the joys of mypy.
+        if isinstance(archive, zipfile.ZipFile):
+            assert isinstance(member, zipfile.ZipInfo)
+            dest.write_bytes(archive.read(member))
+        else:
+            assert isinstance(archive, tarfile.TarFile)
+            assert isinstance(member, tarfile.TarInfo)
 
-    UI.log("License not found in {}".format(wheel.name))
-    get_license_fallback(
-        destination, wheel.name, license_directories, license_fallback_urls
-    )
+            file = archive.extractfile(member)
+            assert file
+
+            dest.write_bytes(file.read())
+
+    def use_license_fallback(self, artifact_name: str) -> None:
+        library_name = _get_library_name_from_artifact_name(artifact_name)
+        if library_name not in self.license_fallback_urls:
+            raise ValueError(f"No hardcoded license URL for {library_name}")
+
+        url = self.license_fallback_urls[library_name]
+        _, _, license_filename = url.rpartition("/")
+
+        dest = self.get_license_destination(library_name, license_filename)
+        self.download_from_url(url, dest)
+
+    def extract_license_from_artifact(self, artifact: Path) -> None:
+        with _open_archive(artifact) as archive_info:
+            archive, files = archive_info
+
+            licenses = list(self.find_licenses(files))
+            for found in licenses:
+                self.extract_license_member(artifact, archive, found)
+
+        if not licenses:
+            UI.log(f"No license found in {artifact.name}, using fallback.")
+            self.use_license_fallback(artifact.name)
+
+
+def download_distributions(location: Path, requirements: Path) -> None:
+    cmd = [
+        "pip",
+        "download",
+        "-r",
+        str(requirements),
+        "--no-deps",
+        "--dest",
+        str(location),
+    ]
+    run(cmd, working_directory=None)
 
 
 def fetch_licenses(config: Configuration) -> None:
@@ -145,11 +153,15 @@ def fetch_licenses(config: Configuration) -> None:
     requirements = config.requirements
 
     tmp_dir = Path(tempfile.gettempdir(), "vendoring-downloads")
-    download_wheels(tmp_dir, requirements)
+    try:
+        download_distributions(tmp_dir, requirements)
 
-    for wheel in tmp_dir.iterdir():
-        extract_license_from_wheel(
-            destination, wheel, license_directories, license_fallback_urls
+        license_extractor = LicenseExtractor(
+            destination=destination,
+            license_directories=license_directories,
+            license_fallback_urls=license_fallback_urls,
         )
-
-    shutil.rmtree(tmp_dir)
+        for artifact in tmp_dir.iterdir():
+            license_extractor.extract_license_from_artifact(artifact)
+    finally:
+        shutil.rmtree(tmp_dir)
