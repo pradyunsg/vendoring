@@ -17,7 +17,7 @@ SAMPLE_PROJECTS = Path(__file__).parent / "sample-projects"
 
 def run_vendoring_sync():
     runner = CliRunner()
-    result = runner.invoke(main, ["sync"])
+    result = runner.invoke(main, ["sync"], catch_exceptions=False)
 
     # Print information to stdout, so that failures are easier to diagnose.
     print(result.output)
