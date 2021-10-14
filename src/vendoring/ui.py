@@ -8,6 +8,7 @@ from textwrap import indent
 from typing import Iterator, List, Optional
 
 import click as _click  # because click has useful utilities
+import rich.traceback
 
 from vendoring.errors import VendoringError
 
@@ -21,6 +22,7 @@ class _UserInterface:
     ]
 
     def __init__(self) -> None:
+        rich.traceback.install()
         self.verbose = False
 
         # Internal state
