@@ -20,6 +20,7 @@ def download_libraries(requirements: Path, destination: Path) -> None:
         "-m",
         "pip",
         "install",
+        "--use-pep517",
         "-t",
         str(destination),
         "-r",

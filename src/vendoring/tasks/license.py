@@ -140,6 +140,7 @@ def download_distributions(location: Path, requirements: Path) -> None:
         "-m",
         "pip",
         "download",
+        "--use-pep517",
         "-r",
         str(requirements),
         "--no-deps",
