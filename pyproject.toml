@@ -15,6 +15,7 @@ dependencies = [
   "toml",
   "requests",
   "packaging",
+  "pip",
 ]
 requires-python = "~= 3.8"
 readme = "README.md"
