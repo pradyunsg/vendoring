@@ -1,4 +1,5 @@
 import shutil
+import sys
 import tarfile
 import tempfile
 import zipfile
@@ -135,6 +136,8 @@ class LicenseExtractor:
 
 def download_distributions(location: Path, requirements: Path) -> None:
     cmd = [
+        sys.executable,
+        "-m",
         "pip",
         "download",
         "-r",

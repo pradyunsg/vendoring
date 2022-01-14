@@ -2,6 +2,7 @@
 """
 
 import re
+import sys
 from pathlib import Path
 from typing import Dict, List
 
@@ -15,6 +16,8 @@ from vendoring.utils import run
 
 def download_libraries(requirements: Path, destination: Path) -> None:
     command = [
+        sys.executable,
+        "-m",
         "pip",
         "install",
         "-t",
