@@ -15,10 +15,10 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
+          - click
           - nox
           - pytest
           - types-requests
-          - types-toml
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2
