@@ -21,7 +21,7 @@ def lint(session):
     else:
         args = ["--all-files", "--show-diff-on-failure"]
 
-    session.run("pre-commit", "run", "--all-files", *args)
+    session.run("pre-commit", "run", *args)
 
 
 @nox.session(python="3.8")
