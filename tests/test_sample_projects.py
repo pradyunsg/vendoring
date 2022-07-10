@@ -8,14 +8,14 @@ import traceback
 from pathlib import Path
 
 import pytest
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 
 from vendoring.cli import main
 
 SAMPLE_PROJECTS = Path(__file__).parent / "sample-projects"
 
 
-def run_vendoring_sync():
+def run_vendoring_sync() -> Result:
     runner = CliRunner()
     result = runner.invoke(main, ["sync"], catch_exceptions=False)
 
@@ -27,7 +27,7 @@ def run_vendoring_sync():
     return result
 
 
-def test_basic(tmp_path, monkeypatch):
+def test_basic(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "basic", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 
@@ -59,7 +59,7 @@ def test_basic(tmp_path, monkeypatch):
     ]
 
 
-def test_import_rewriting(tmp_path, monkeypatch):
+def test_import_rewriting(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "import_rewriting", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 
@@ -89,7 +89,7 @@ def test_import_rewriting(tmp_path, monkeypatch):
     assert interesting_line == expected_line
 
 
-def test_licenses(tmp_path, monkeypatch):
+def test_licenses(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "licenses", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 
@@ -118,7 +118,7 @@ def test_licenses(tmp_path, monkeypatch):
     sys.platform == "win32",
     reason="Fails with 'error: corrupt patch at line 6' on `git apply` (needs fixing)",
 )
-def test_patches(tmp_path, monkeypatch):
+def test_patches(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "patches", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 
@@ -138,7 +138,7 @@ def test_patches(tmp_path, monkeypatch):
     assert line == "        from ctypes import windll\n"
 
 
-def test_protected_files(tmp_path, monkeypatch):
+def test_protected_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "protected_files", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 
@@ -150,7 +150,7 @@ def test_protected_files(tmp_path, monkeypatch):
     assert sorted(os.listdir(vendored)) == ["README.md", "packaging"]
 
 
-def test_transformations(tmp_path, monkeypatch):
+def test_transformations(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "transformations", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 
@@ -201,7 +201,7 @@ def test_transformations(tmp_path, monkeypatch):
     assert line == "__import__('transformations.vendored.packaging.version')\n"
 
 
-def test_typing_fun(tmp_path, monkeypatch):
+def test_typing_fun(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     shutil.copytree(SAMPLE_PROJECTS / "typing_fun", tmp_path, dirs_exist_ok=True)
     monkeypatch.chdir(tmp_path)
 

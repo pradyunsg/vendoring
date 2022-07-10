@@ -14,6 +14,9 @@ repos:
     rev: "v0.800"
     hooks:
       - id: mypy
+        additional_dependencies:
+          - nox
+          - pytest
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.8.4
