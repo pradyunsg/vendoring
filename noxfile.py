@@ -6,6 +6,7 @@ import subprocess
 from glob import glob
 from pathlib import Path
 from time import time
+from typing import List, Optional
 
 import nox
 
@@ -13,7 +14,7 @@ nox.options.sessions = ["lint", "test"]
 
 
 @nox.session(python="3.8")
-def lint(session):
+def lint(session: nox.Session) -> None:
     session.install("pre-commit")
 
     if session.posargs:
@@ -25,7 +26,7 @@ def lint(session):
 
 
 @nox.session(python="3.8")
-def test(session):
+def test(session: nox.Session) -> None:
     session.install("flit")
     session.run(
         "flit", "install", "-s", "--deps", "production", "--extra", "test", silent=True
@@ -34,7 +35,7 @@ def test(session):
     session.run("pytest", *session.posargs)
 
 
-def get_version_from_arguments(arguments):
+def get_version_from_arguments(arguments: List[str]) -> Optional[str]:
     """Checks the arguments passed to `nox -s release`.
 
     If there is only 1 argument that looks like a version, returns the argument.
@@ -58,7 +59,7 @@ def get_version_from_arguments(arguments):
     return version
 
 
-def perform_git_checks(session, version_tag):
+def perform_git_checks(session: nox.Session, version_tag: str) -> None:
     # Ensure we're on master branch for cutting a release.
     result = subprocess.run(
         ["git", "rev-parse", "--abbrev-ref", "HEAD"],
@@ -88,7 +89,7 @@ def perform_git_checks(session, version_tag):
     session.run("git", "tag", _release_backup_tag, external=True)
 
 
-def bump(session, *, version, file, kind):
+def bump(session: nox.Session, *, version: str, file: Path, kind: str) -> None:
     session.log(f"Bump version to {version!r}")
     contents = file.read_text()
     new_contents = re.sub(
@@ -102,7 +103,7 @@ def bump(session, *, version, file, kind):
 
 
 @nox.session
-def release(session):
+def release(session: nox.Session) -> None:
     package_name = "vendoring"
     release_version = get_version_from_arguments(session.posargs)
     if not release_version:

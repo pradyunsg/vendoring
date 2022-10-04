@@ -1,6 +1,7 @@
 """Unit tests for `vendoring.tasks.vendor`"""
 
 import textwrap
+from pathlib import Path
 
 import pytest
 
@@ -20,7 +21,7 @@ _SUPPORTED_IMPORT_FORMS = textwrap.dedent(
 
 
 class TestRewriteFileImports:
-    def test_basic(self, tmp_path):
+    def test_basic(self, tmp_path: Path) -> None:
         path = tmp_path / "module.py"
         path.write_text(_SUPPORTED_IMPORT_FORMS)
 
@@ -42,7 +43,7 @@ class TestRewriteFileImports:
             """
         )
 
-    def test_does_not_rewrite_on_empty_namespace(self, tmp_path):
+    def test_does_not_rewrite_on_empty_namespace(self, tmp_path: Path) -> None:
         path = tmp_path / "module.py"
         path.write_text(_SUPPORTED_IMPORT_FORMS)
 
@@ -55,7 +56,7 @@ class TestRewriteFileImports:
 
         assert path.read_text() == _SUPPORTED_IMPORT_FORMS
 
-    def test_additional_substitutions_are_made(self, tmp_path):
+    def test_additional_substitutions_are_made(self, tmp_path: Path) -> None:
         path = tmp_path / "module.py"
         path.write_text(_SUPPORTED_IMPORT_FORMS)
 
@@ -77,7 +78,9 @@ class TestRewriteFileImports:
             """
         )
 
-    def test_additional_substitutions_are_made_on_empty_namespace(self, tmp_path):
+    def test_additional_substitutions_are_made_on_empty_namespace(
+        self, tmp_path: Path
+    ) -> None:
         path = tmp_path / "module.py"
         path.write_text(_SUPPORTED_IMPORT_FORMS)
 
@@ -101,7 +104,7 @@ class TestRewriteFileImports:
 
 
 class TestCannotRewriteFileImports:
-    def test_dot_import_without_alias(self, tmp_path):
+    def test_dot_import_without_alias(self, tmp_path: Path) -> None:
         path = tmp_path / "module.py"
         path.write_text("import other.shouldfail\n")
 
@@ -113,7 +116,7 @@ class TestCannotRewriteFileImports:
                 additional_substitutions=[],
             )
 
-    def test_dot_import_without_alias_but_with_comment(self, tmp_path):
+    def test_dot_import_without_alias_but_with_comment(self, tmp_path: Path) -> None:
         path = tmp_path / "module.py"
         path.write_text("import other.shouldfail  # comment\n")
 

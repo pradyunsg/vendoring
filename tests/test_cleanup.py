@@ -1,12 +1,15 @@
 import shutil
+from pathlib import Path
+from typing import Iterator, List
 
 import pytest
+from pytest_mock import MockerFixture
 
 from vendoring.tasks.cleanup import cleanup_existing_vendored, determine_items_to_remove
 
 
 @pytest.fixture
-def throwaway(tmp_path):
+def throwaway(tmp_path: Path) -> Iterator[Path]:
     (tmp_path / "foo.txt").touch()
     (tmp_path / "bar.txt").touch()
     (tmp_path / "dir").mkdir()
@@ -16,7 +19,7 @@ def throwaway(tmp_path):
 
 
 class TestDetermineItemsToRemove:
-    def test_non_existent_directory(self, tmp_path):
+    def test_non_existent_directory(self, tmp_path: Path) -> None:
         locations = determine_items_to_remove(
             tmp_path / "non-existent",
             files_to_skip=[],
@@ -38,7 +41,9 @@ class TestDetermineItemsToRemove:
             (["foo.txt", "bar.txt"], ["dir"]),
         ],
     )
-    def test_skipping(self, throwaway, skip, expected):
+    def test_skipping(
+        self, throwaway: Path, skip: List[str], expected: List[str]
+    ) -> None:
         locations = determine_items_to_remove(throwaway, files_to_skip=skip)
 
         got = []
@@ -49,7 +54,9 @@ class TestDetermineItemsToRemove:
 
 
 class TestCleanupExistingVendored:
-    def test_calls_the_helper_correctly(self, mocker, tmp_path):
+    def test_calls_the_helper_correctly(
+        self, mocker: MockerFixture, tmp_path: Path
+    ) -> None:
         our_unique_blob = object()
 
         # Mock out all the callees
@@ -72,7 +79,7 @@ class TestCleanupExistingVendored:
         determine_mock.assert_called_with(tmp_path, files_to_skip=[])
         remove_mock.assert_called_with(our_unique_blob)
 
-    def test_functional(self, mocker, throwaway):
+    def test_functional(self, mocker: MockerFixture, throwaway: Path) -> None:
         config_mock = mocker.Mock()
         config_mock.destination = throwaway
         config_mock.protected_files = ["foo.txt"]

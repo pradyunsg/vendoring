@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
-from types import SimpleNamespace
-from typing import Optional
+from typing import Callable, NamedTuple, Optional
 
 import click
 
@@ -14,8 +13,19 @@ from vendoring.tasks.update import update_requirements
 from vendoring.tasks.vendor import vendor_libraries
 from vendoring.ui import UI
 
-template = SimpleNamespace(
+_EntryPoint = Callable[..., None]
+_Param = Callable[[_EntryPoint], _EntryPoint]
+
+
+class _Template(NamedTuple):
     # Arguments
+    location: _Param
+    package: _Param
+    # Options
+    verbose: _Param
+
+
+template = _Template(
     location=click.argument(
         "location",
         default=None,
@@ -23,7 +33,6 @@ template = SimpleNamespace(
         type=click.Path(exists=True, file_okay=False, resolve_path=True),
     ),
     package=click.argument("package", default=None, required=False, type=str),
-    # Options
     verbose=click.option("-v", "--verbose", is_flag=True),
 )
 
