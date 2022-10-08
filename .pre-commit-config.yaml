@@ -19,7 +19,6 @@ repos:
           - nox
           - pytest
           - types-requests
-          - types-toml
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2

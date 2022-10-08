@@ -8,8 +8,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from jsonschema import ValidationError, validate
-from toml import TomlDecodeError
-from toml import loads as parse_toml
+from tomli import TOMLDecodeError
+from tomli import loads as parse_toml
 
 from vendoring.errors import ConfigurationError
 from vendoring.ui import UI
@@ -143,7 +143,7 @@ def load_configuration(directory: Path) -> Configuration:
 
     try:
         parsed_contents = parse_toml(file_contents)
-    except TomlDecodeError as toml_error:
+    except TOMLDecodeError as toml_error:
         raise ConfigurationError("Could not parse pyproject.toml.") from toml_error
     else:
         UI.log("Parsed configuration file.")

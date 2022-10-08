@@ -12,7 +12,7 @@ dependencies = [
   "click",
   "rich",
   "jsonschema",
-  "toml",
+  "tomli",
   "requests",
   "packaging",
 ]
