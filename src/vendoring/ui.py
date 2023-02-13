@@ -108,6 +108,7 @@ class _UserInterface:
         else:
             message = str(e)
 
+        self.log("Encountered an error:")
         with self.indent():
             self.log(_click.style(message, fg="red"))
 
