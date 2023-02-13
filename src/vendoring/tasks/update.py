@@ -70,7 +70,8 @@ def determine_latest_release(name: str) -> str:
     except Exception as e:
         raise VendoringError(f"Could not determine latest version for {name}: {e!r}")
 
-    UI.log(f"Got {retval}")
+    with UI.indent():
+        UI.log(f"Got {retval}")
     return retval
 
 
