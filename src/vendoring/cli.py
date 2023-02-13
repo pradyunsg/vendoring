@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Callable, NamedTuple, Optional
+from typing import Callable, List, NamedTuple, Optional
 
 import click
 
@@ -79,7 +79,7 @@ def update(verbose: bool, package: Optional[str]) -> None:
 )
 @template.verbose
 def update_interactive(
-    verbose: bool, skip: list[str], only: list[str], from_start: bool
+    verbose: bool, skip: List[str], only: List[str], from_start: bool
 ) -> None:
     """Update all package versions, interactively"""
     UI.verbose = verbose

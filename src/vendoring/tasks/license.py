@@ -87,7 +87,6 @@ class LicenseExtractor:
     def extract_license_member(
         self, artifact: Path, archive: Archive, member: ArchiveMember
     ) -> None:
-
         library_name = _get_library_name_from_artifact_name(artifact.name)
         license_filename = Path(_get_filename_from_archive_member(member)).name
         dest = self.get_license_destination(library_name, license_filename)
