@@ -27,11 +27,7 @@ def lint(session: nox.Session) -> None:
 
 @nox.session(python="3.8")
 def test(session: nox.Session) -> None:
-    session.install("flit")
-    session.run(
-        "flit", "install", "-s", "--deps", "production", "--extra", "test", silent=True
-    )
-
+    session.install(".[test]")
     session.run("pytest", *session.posargs)
 
 
