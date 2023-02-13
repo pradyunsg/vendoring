@@ -6,11 +6,8 @@ import click
 
 from vendoring.configuration import load_configuration
 from vendoring.errors import VendoringError
-from vendoring.tasks.cleanup import cleanup_existing_vendored
-from vendoring.tasks.license import fetch_licenses
-from vendoring.tasks.stubs import generate_stubs
+from vendoring.sync import run_sync
 from vendoring.tasks.update import update_requirements
-from vendoring.tasks.vendor import vendor_libraries
 from vendoring.ui import UI
 
 _EntryPoint = Callable[..., None]
@@ -57,18 +54,7 @@ def sync(verbose: bool, location: Optional[str]) -> None:
     try:
         with UI.task("Load configuration"):
             config = load_configuration(project_path)
-
-        with UI.task("Clean existing libraries"):
-            cleanup_existing_vendored(config)
-
-        with UI.task("Add vendored libraries"):
-            libraries = vendor_libraries(config)
-
-        with UI.task("Fetch licenses"):
-            fetch_licenses(config)
-
-        with UI.task("Generate static-typing stubs"):
-            generate_stubs(config, libraries)
+        run_sync(config)
     except VendoringError as e:
         UI.show_error(e)
         sys.exit(1)
