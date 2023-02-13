@@ -42,8 +42,7 @@ class _UserInterface:
         self.log(_click.style(f"WARN: {message}", fg="yellow"))
 
     def log(self, message: str) -> None:
-        if self._indentation:
-            message = indent(message, "  " * self._indentation)
+        message = indent(message, "  " * self._indentation)
 
         if self._current_task is not None and not self.verbose:
             if self._spinner is None:
