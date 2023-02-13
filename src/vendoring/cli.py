@@ -16,19 +16,12 @@ _Param = Callable[[_EntryPoint], _EntryPoint]
 
 class _Template(NamedTuple):
     # Arguments
-    location: _Param
     package: _Param
     # Options
     verbose: _Param
 
 
 template = _Template(
-    location=click.argument(
-        "location",
-        default=None,
-        required=False,
-        type=click.Path(exists=True, file_okay=False, resolve_path=True),
-    ),
     package=click.argument("package", default=None, required=False, type=str),
     verbose=click.option("-v", "--verbose", is_flag=True),
 )
@@ -41,13 +34,10 @@ def main() -> None:
 
 @main.command()
 @template.verbose
-@template.location
-def sync(verbose: bool, location: Optional[str]) -> None:
+def sync(verbose: bool) -> None:
+    """Vendor libraries as described in lockfile"""
     UI.verbose = verbose
-    if location is None:
-        project_path = Path()
-    else:
-        project_path = Path(location)
+    project_path = Path()
 
     print(f"Working in {project_path}")
 
@@ -62,15 +52,15 @@ def sync(verbose: bool, location: Optional[str]) -> None:
 
 @main.command()
 @template.verbose
-@template.location
 @template.package
-def update(verbose: bool, location: Path, package: Optional[str]) -> None:
+def update(verbose: bool, package: Optional[str]) -> None:
+    """Update a single package version"""
     UI.verbose = verbose
-    location = Path(location)
+    project_path = Path()
 
     try:
         with UI.task("Load configuration"):
-            config = load_configuration(location)
+            config = load_configuration(project_path)
         with UI.task("Updating requirements"):
             update_requirements(config, package)
     except VendoringError as e:
