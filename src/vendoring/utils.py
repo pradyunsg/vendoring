@@ -10,9 +10,11 @@ from vendoring.errors import VendoringError
 from vendoring.ui import UI
 
 
-def remove_all(items_to_cleanup: Iterable[Path]) -> None:
+def remove_all(items_to_cleanup: Iterable[Path], *, protected: List[Path]) -> None:
     for item in items_to_cleanup:
         if not item.exists():
+            continue
+        if item in protected:
             continue
         if item.is_dir() and not item.is_symlink():
             shutil.rmtree(item)

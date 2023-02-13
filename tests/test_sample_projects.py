@@ -147,7 +147,7 @@ def test_protected_files(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Non
 
     vendored = tmp_path / "vendored"
     assert vendored.exists()
-    assert sorted(os.listdir(vendored)) == ["README.md", "packaging"]
+    assert sorted(os.listdir(vendored)) == ["README.md", "packaging", "vendor.txt"]
 
 
 def test_transformations(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

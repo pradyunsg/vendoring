@@ -71,13 +71,16 @@ class TestCleanupExistingVendored:
         config_mock = mocker.Mock()
         config_mock.destination = tmp_path
         config_mock.protected_files = []
+        config_mock.requirements = tmp_path / "requirements.txt"
 
         # The actual thing we're testing
         cleanup_existing_vendored(config_mock)
 
         # Make sure the things we wanted happened
         determine_mock.assert_called_with(tmp_path, files_to_skip=[])
-        remove_mock.assert_called_with(our_unique_blob)
+        remove_mock.assert_called_with(
+            our_unique_blob, protected=[config_mock.requirements]
+        )
 
     def test_functional(self, mocker: MockerFixture, throwaway: Path) -> None:
         config_mock = mocker.Mock()

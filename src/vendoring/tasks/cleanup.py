@@ -30,4 +30,4 @@ def cleanup_existing_vendored(config: Configuration) -> None:
     items = determine_items_to_remove(destination, files_to_skip=config.protected_files)
 
     # TODO: log how many items were removed.
-    remove_all(items)
+    remove_all(items, protected=[config.requirements])
