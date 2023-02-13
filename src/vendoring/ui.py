@@ -15,10 +15,10 @@ from vendoring.errors import VendoringError
 
 class _UserInterface:
     _spinner_frames = [
-        "◴",
-        "◷",
-        "◶",
-        "◵",
+        ".",
+        "o",
+        "O",
+        "o",
     ]
 
     def __init__(self) -> None:
