@@ -72,8 +72,8 @@ class _UserInterface:
         try:
             with self.indent():
                 yield
-        except VendoringError as e:
-            self._task_failed(e)
+        except VendoringError:
+            self._task_failed()
             raise
         else:
             self._task_success()
@@ -82,7 +82,7 @@ class _UserInterface:
             self._logged_messages = []
             self._spinner = None
 
-    def _task_failed(self, error: VendoringError) -> None:
+    def _task_failed(self) -> None:
         if self.verbose:
             # There's nothing that was "hidden", so no action needed.
             return
