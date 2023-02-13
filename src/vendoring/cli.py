@@ -6,6 +6,7 @@ import click
 
 from vendoring.configuration import load_configuration
 from vendoring.errors import VendoringError
+from vendoring.interactive import interactive_updates
 from vendoring.sync import run_sync
 from vendoring.tasks.update import update_requirements
 from vendoring.ui import UI
@@ -63,6 +64,31 @@ def update(verbose: bool, package: Optional[str]) -> None:
             config = load_configuration(project_path)
         with UI.task("Updating requirements"):
             update_requirements(config, package)
+    except VendoringError as e:
+        UI.show_error(e)
+        sys.exit(1)
+
+
+@main.command("update-interactive")
+@click.option("--skip", help="Skip named packages", multiple=True)
+@click.option("--only", help="Only update named packages", multiple=True)
+@click.option(
+    "--from-start",
+    help="Start from the beginning, ignoring existing markers",
+    is_flag=True,
+)
+@template.verbose
+def update_interactive(
+    verbose: bool, skip: list[str], only: list[str], from_start: bool
+) -> None:
+    """Update all package versions, interactively"""
+    UI.verbose = verbose
+    project_path = Path()
+
+    try:
+        with UI.task("Load configuration"):
+            config = load_configuration(project_path)
+        interactive_updates(config, skip=skip, only=only, from_start=from_start)
     except VendoringError as e:
         UI.show_error(e)
         sys.exit(1)
