@@ -66,7 +66,7 @@ class _UserInterface:
         if self._current_task is not None:
             raise Exception("Only 1 task at a time.")
 
-        self._log(f"{task}... ", nl=self.verbose)
+        self._log(indent(f"{task}... ", "  " * self._indentation), nl=self.verbose)
 
         self._current_task = task
         try:
