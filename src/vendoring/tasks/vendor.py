@@ -36,10 +36,6 @@ def _looks_like_glob(pattern: str) -> bool:
 
 
 def remove_unnecessary_items(destination: Path, drop_paths: List[str]) -> None:
-    # Cleanup any metadata directories created.
-    _remove_all(destination.glob("*.dist-info"), protected=[])
-    _remove_all(destination.glob("*.egg-info"), protected=[])
-
     for pattern in drop_paths:
         if pattern.startswith("^"):
             _remove_matching_regex(destination, pattern)
