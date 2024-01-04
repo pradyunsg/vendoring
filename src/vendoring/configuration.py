@@ -36,6 +36,9 @@ class Configuration:
     # Drop
     drop_paths: List[str]
 
+    # Preserve package metadata
+    preserve_metadata: bool
+
     # Fallbacks for licenses that can't be found
     license_fallback_urls: Dict[str, str]
     # Alternate directory name, when distribution name differs from the package name
@@ -60,6 +63,7 @@ class Configuration:
                 "requirements": {"type": "string"},
                 "protected-files": {"type": "array", "items": {"type": "string"}},
                 "patches-dir": {"type": "string"},
+                "preserve_metadata": {"type": "boolean"},
                 "transformations": {
                     "type": "object",
                     "additionalProperties": False,
@@ -121,6 +125,7 @@ class Configuration:
             patches_dir=path_or_none("patches-dir"),
             substitute=dictionary.get("transformations", {}).get("substitute", {}),
             drop_paths=dictionary.get("transformations", {}).get("drop", []),
+            preserve_metadata=dictionary.get("preserve_metadata", False),
             license_fallback_urls=dictionary.get("license", {}).get(
                 "fallback-urls", {}
             ),
