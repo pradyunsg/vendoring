@@ -1,6 +1,3 @@
-"""Development automation
-"""
-
 import re
 import subprocess
 from glob import glob
