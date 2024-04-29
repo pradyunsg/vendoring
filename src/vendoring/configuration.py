@@ -48,7 +48,11 @@ class Configuration:
     def load_from_dict(
         cls, dictionary: Dict[str, Any], *, location: Path
     ) -> "Configuration":
-        """Constructs a Configuration, validating the values in `dictionary`, expecting paths to be within `location`."""
+        """Constructs a Configuration object from dictionary.
+
+        It also performs validation of the values in `dictionary`,
+        expecting paths to be within `location`.
+        """
 
         schema = {
             "type": "object",
