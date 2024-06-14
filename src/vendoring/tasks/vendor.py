@@ -35,7 +35,14 @@ def _looks_like_glob(pattern: str) -> bool:
     return "*" in pattern or "?" in pattern or "[" in pattern
 
 
-def remove_unnecessary_items(destination: Path, drop_paths: List[str]) -> None:
+def remove_unnecessary_items(
+    destination: Path, drop_paths: List[str], preserve_metadata: bool
+) -> None:
+    # Cleanup any metadata directories created.
+    if not preserve_metadata:
+        _remove_all(destination.glob("*.dist-info"))
+        _remove_all(destination.glob("*.egg-info"))
+
     for pattern in drop_paths:
         if pattern.startswith("^"):
             _remove_matching_regex(destination, pattern)
@@ -158,7 +165,7 @@ def vendor_libraries(config: Configuration) -> List[str]:
     download_libraries(config.requirements, destination)
 
     # Cleanup unnecessary directories/files created.
-    remove_unnecessary_items(destination, config.drop_paths)
+    remove_unnecessary_items(destination, config.drop_paths, config.preserve_metadata)
 
     # Detect what got downloaded.
     vendored_libs = detect_vendored_libs(destination, config.protected_files)
