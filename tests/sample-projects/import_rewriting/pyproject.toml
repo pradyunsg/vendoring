@@ -2,3 +2,9 @@
 destination = "vendored/"
 requirements = "vendor.txt"
 namespace = "import_rewriting.vendored"
+
+[tool.vendoring.transformations]
+drop = [
+    "*.dist-info",
+    "*.egg-info",
+]

@@ -1,7 +1,9 @@
 """Test the various bits of functionality, through sample projects."""
 
+import json
 import linecache
 import os
+import re
 import shutil
 import sys
 import traceback
@@ -226,3 +228,45 @@ def test_typing_fun(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         "moves",
     ]
     assert (six / "moves" / "__init__.pyi").exists()
+
+
+def test_sbom(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    shutil.copytree(SAMPLE_PROJECTS / "sbom", tmp_path, dirs_exist_ok=True)
+    monkeypatch.chdir(tmp_path)
+
+    result = run_vendoring_sync()
+    assert result.exit_code == 0
+
+    vendored = tmp_path / "vendored"
+    assert vendored.exists()
+    assert sorted(os.listdir(vendored)) == [
+        "appdirs.LICENSE.txt",
+        "appdirs.py",
+        "appdirs.pyi",
+        "bom.cdx.json",
+    ]
+
+    sbom_data = json.loads((vendored / "bom.cdx.json").read_text())
+    assert re.match(
+        r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z",
+        sbom_data["metadata"].pop("timestamp"),
+    )
+    assert sbom_data == {
+        "$schema": "http://cyclonedx.org/schema/bom-1.4.schema.json",
+        "bomFormat": "CycloneDX",
+        "metadata": {
+            "component": {
+                "components": [
+                    {
+                        "name": "appdirs",
+                        "purl": "pkg:pypi/appdirs@1.4.4",
+                        "version": "1.4.4",
+                    }
+                ],
+                "name": "sbom",
+                "type": "library",
+            }
+        },
+        "specVersion": "1.4",
+        "version": 1,
+    }

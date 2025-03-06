@@ -18,4 +18,6 @@ drop = [
   "setuptools/*.exe",               # glob
   '^setuptools/py\d\dcompat\.py$',  # regex
   '^setuptools/.+\.tmpl$',          # regex
+  "*.dist-info",
+  "*.egg-info",
 ]

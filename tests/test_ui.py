@@ -72,12 +72,12 @@ def test__log_correctly_calls_click_echo(
 
 def test_shows_basic_log(ui: _UserInterface) -> None:
     ui.log("blah")
-    ui._log.assert_any_call("blah")  # type: ignore[attr-defined]
+    ui._log.assert_any_call("blah")
 
 
 def test_shows_basic_log_when_verbose(ui: _UserInterface, verbose: None) -> None:
     ui.log("blah")
-    ui._log.assert_any_call("blah")  # type: ignore[attr-defined]
+    ui._log.assert_any_call("blah")
 
 
 @pytest.mark.parametrize("verbosity", [True, False])
@@ -85,32 +85,32 @@ def test_shows_basic_warn(ui: _UserInterface, verbosity: bool) -> None:
     ui.verbose = verbosity
     ui.warn("blah")
 
-    ui._log.assert_any_call(style("WARN: blah", fg="yellow"))  # type: ignore[attr-defined]
+    ui._log.assert_any_call(style("WARN: blah", fg="yellow"))
 
 
 def test_shows_task_log_shown_when_verbose(ui: _UserInterface, verbose: None) -> None:
     with ui.task("Task Name"):
         ui.log("blah")
 
-    ui._log.assert_has_calls([mock.call("Task Name... ", nl=True), mock.call("  blah")])  # type: ignore[attr-defined]
+    ui._log.assert_has_calls([mock.call("Task Name... ", nl=True), mock.call("  blah")])
 
 
 def test_shows_task_log_redacted_when_silent(ui: _UserInterface) -> None:
     with ui.task("Task Name"):
         ui.log("blah")
 
-    ui._log.assert_any_call("Task Name... ", nl=False)  # type: ignore[attr-defined]
+    ui._log.assert_any_call("Task Name... ", nl=False)
 
     # Ensure no calls made to log with the given message, since the task succeeded.
-    assert mock.call("blah") not in ui._log.call_args_list  # type: ignore[attr-defined]
-    assert mock.call("  blah") not in ui._log.call_args_list  # type: ignore[attr-defined]
+    assert mock.call("blah") not in ui._log.call_args_list
+    assert mock.call("  blah") not in ui._log.call_args_list
 
 
 def test_works_when_no_ui(ui: _UserInterface) -> None:
     with ui.task("Task Name"):
         pass
 
-    ui._log.assert_any_call("Task Name... ", nl=False)  # type: ignore[attr-defined]
+    ui._log.assert_any_call("Task Name... ", nl=False)
 
 
 def test_task_shows_spinner_when_silent(ui: _UserInterface) -> None:
@@ -119,7 +119,7 @@ def test_task_shows_spinner_when_silent(ui: _UserInterface) -> None:
         ui.log("foo")
         ui.log("boo")
 
-    assert ui._log.call_args_list == [  # type: ignore[attr-defined]
+    assert ui._log.call_args_list == [
         mock.call("Task Name... ", nl=False),
         mock.call(ui._spinner_frames[0], nl=False, erase=True),
         mock.call(ui._spinner_frames[1], nl=False, erase=True),
@@ -141,7 +141,8 @@ def test_show_error(ui: _UserInterface) -> None:
     except Exception as e:
         ui.show_error(e)
 
-    assert ui._log.call_args_list == [  # type: ignore[attr-defined]
+    assert ui._log.call_args_list == [
+        mock.call("Encountered an error:"),
         mock.call("  " + style("Yay!", fg="red")),
     ]
 
@@ -152,8 +153,9 @@ def test_show_error_verbose(ui: _UserInterface, verbose: None) -> None:
     except Exception as e:
         ui.show_error(e)
 
-    assert ui._log.call_args_list == [  # type: ignore[attr-defined]
+    assert ui._log.call_args_list == [
         # XXX: This contains the entire traceback. We should check this but I'm tired.
+        mock.call("Encountered an error:"),
         mock.call(mock.ANY),
     ]
 
@@ -170,13 +172,13 @@ def test_task_failure(ui: _UserInterface) -> None:
     with ui.task("Another Task"):
         ui.log("Works as expected")
 
-    assert ui._log.call_args_list == [  # type: ignore[attr-defined]
+    assert ui._log.call_args_list == [
         mock.call("Task Name... ", nl=False),
-        mock.call("◴", nl=False, erase=True),
+        mock.call(".", nl=False, erase=True),
         mock.call(" "),
         mock.call("  Houston, there's a problem!"),
         mock.call("Another Task... ", nl=False),
-        mock.call("◴", nl=False, erase=True),
+        mock.call(".", nl=False, erase=True),
         mock.call(style("Done!", fg="green")),
     ]
 
@@ -193,7 +195,7 @@ def test_task_failure_verbose(ui: _UserInterface, verbose: None) -> None:
     with ui.task("Another Task"):
         ui.log("Works as expected")
 
-    assert ui._log.call_args_list == [  # type: ignore[attr-defined]
+    assert ui._log.call_args_list == [
         mock.call("Task Name... ", nl=True),
         mock.call("  Houston, there's a problem!"),
         mock.call("Another Task... ", nl=True),
