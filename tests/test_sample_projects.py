@@ -1,7 +1,9 @@
 """Test the various bits of functionality, through sample projects."""
 
+import json
 import linecache
 import os
+import re
 import shutil
 import sys
 import traceback
@@ -226,3 +228,60 @@ def test_typing_fun(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         "moves",
     ]
     assert (six / "moves" / "__init__.pyi").exists()
+
+
+def test_sbom(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    shutil.copytree(SAMPLE_PROJECTS / "sbom", tmp_path, dirs_exist_ok=True)
+    monkeypatch.chdir(tmp_path)
+
+    result = run_vendoring_sync()
+    assert result.exit_code == 0
+
+    vendored = tmp_path / "vendored"
+    assert vendored.exists()
+    assert sorted(os.listdir(vendored)) == [
+        "appdirs.LICENSE.txt",
+        "appdirs.py",
+        "appdirs.pyi",
+        "bom.cdx.json",
+        "six.LICENSE",
+        "six.py",
+        "six.pyi",
+    ]
+
+    sbom_data = json.loads((vendored / "bom.cdx.json").read_text())
+    assert sbom_data == {
+        "$schema": "http://cyclonedx.org/schema/bom-1.4.schema.json",
+        "bomFormat": "CycloneDX",
+        "components": [
+            {"bom-ref": "bom-ref:sbom", "name": "sbom", "type": "library"},
+            {
+                "bom-ref": "pkg:pypi/appdirs@1.4.4",
+                "name": "appdirs",
+                "purl": "pkg:pypi/appdirs@1.4.4",
+                "type": "library",
+                "version": "1.4.4",
+            },
+            {
+                "bom-ref": "pkg:pypi/six@1.15.0",
+                "name": "six",
+                "purl": "pkg:pypi/six@1.15.0",
+                "type": "library",
+                "version": "1.15.0",
+            },
+        ],
+        "dependencies": [
+            {
+                "dependsOn": ["pkg:pypi/appdirs@1.4.4", "pkg:pypi/six@1.15.0"],
+                "ref": "bom-ref:sbom",
+            },
+            {"ref": "pkg:pypi/appdirs@1.4.4"},
+            {"ref": "pkg:pypi/six@1.15.0"},
+        ],
+        "metadata": {
+            "component": {"bom-ref": "bom-ref:sbom", "name": "sbom", "type": "library"},
+            "tools": [{"name": "vendoring", "version": "1.2.1.dev0"}],
+        },
+        "specVersion": "1.4",
+        "version": 1,
+    }
