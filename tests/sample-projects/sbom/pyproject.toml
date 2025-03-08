@@ -1,0 +1,12 @@
+[tool.vendoring]
+destination = "vendored/"
+requirements = "vendor.txt"
+namespace = "sbom.vendored"
+
+sbom-file = "vendored/bom.cdx.json"
+
+[tool.vendoring.transformations]
+drop = [
+    "*.dist-info",
+    "*.egg-info",
+]

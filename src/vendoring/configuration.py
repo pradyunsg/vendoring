@@ -44,6 +44,9 @@ class Configuration:
     # Overrides for which stub files are generated
     typing_stubs: Dict[str, List[str]]
 
+    # SBOM file
+    sbom_file: Optional[Path]
+
     @classmethod
     def load_from_dict(
         cls, dictionary: Dict[str, Any], *, location: Path
@@ -64,6 +67,7 @@ class Configuration:
                 "requirements": {"type": "string"},
                 "protected-files": {"type": "array", "items": {"type": "string"}},
                 "patches-dir": {"type": "string"},
+                "sbom-file": {"type": "string"},
                 "transformations": {
                     "type": "object",
                     "additionalProperties": False,
@@ -123,6 +127,7 @@ class Configuration:
             requirements=Path(dictionary["requirements"]),
             protected_files=dictionary.get("protected-files", []),
             patches_dir=path_or_none("patches-dir"),
+            sbom_file=path_or_none("sbom-file"),
             substitute=dictionary.get("transformations", {}).get("substitute", {}),
             drop_paths=dictionary.get("transformations", {}).get("drop", []),
             license_fallback_urls=dictionary.get("license", {}).get(

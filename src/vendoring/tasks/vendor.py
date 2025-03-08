@@ -7,6 +7,7 @@ from typing import Dict, List
 
 from vendoring.configuration import Configuration
 from vendoring.errors import VendoringError
+from vendoring.sbom import create_sbom_file
 from vendoring.ui import UI
 from vendoring.utils import remove_all as _remove_all
 from vendoring.utils import remove_matching_regex as _remove_matching_regex
@@ -156,6 +157,10 @@ def vendor_libraries(config: Configuration) -> List[str]:
 
     # Download the relevant libraries.
     download_libraries(config.requirements, destination)
+
+    # Generate an SBOM document for the requirements.
+    if config.sbom_file:
+        create_sbom_file(config.namespace, config.requirements, config.sbom_file)
 
     # Cleanup unnecessary directories/files created.
     remove_unnecessary_items(destination, config.drop_paths)
