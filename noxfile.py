@@ -10,7 +10,7 @@ import nox
 nox.options.sessions = ["lint", "test"]
 
 
-@nox.session(python="3.8")
+@nox.session(python="3.9")
 def lint(session: nox.Session) -> None:
     session.install("pre-commit")
 

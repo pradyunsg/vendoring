@@ -142,6 +142,7 @@ def test_show_error(ui: _UserInterface) -> None:
         ui.show_error(e)
 
     assert ui._log.call_args_list == [  # type: ignore[attr-defined]
+        mock.call("Encountered an error:"),
         mock.call("  " + style("Yay!", fg="red")),
     ]
 
@@ -154,6 +155,7 @@ def test_show_error_verbose(ui: _UserInterface, verbose: None) -> None:
 
     assert ui._log.call_args_list == [  # type: ignore[attr-defined]
         # XXX: This contains the entire traceback. We should check this but I'm tired.
+        mock.call("Encountered an error:"),
         mock.call(mock.ANY),
     ]
 
@@ -172,11 +174,11 @@ def test_task_failure(ui: _UserInterface) -> None:
 
     assert ui._log.call_args_list == [  # type: ignore[attr-defined]
         mock.call("Task Name... ", nl=False),
-        mock.call("◴", nl=False, erase=True),
+        mock.call(".", nl=False, erase=True),
         mock.call(" "),
         mock.call("  Houston, there's a problem!"),
         mock.call("Another Task... ", nl=False),
-        mock.call("◴", nl=False, erase=True),
+        mock.call(".", nl=False, erase=True),
         mock.call(style("Done!", fg="green")),
     ]
 

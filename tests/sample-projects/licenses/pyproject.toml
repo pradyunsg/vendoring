@@ -3,5 +3,11 @@ destination = "vendored/"
 requirements = "vendor.txt"
 namespace = "licenses.vendored"
 
+[tool.vendoring.transformations]
+drop = [
+    "*.dist-info",
+    "*.egg-info",
+]
+
 [tool.vendoring.license.fallback-urls]
 webencodings = "https://github.com/SimonSapin/python-webencodings/raw/master/LICENSE"

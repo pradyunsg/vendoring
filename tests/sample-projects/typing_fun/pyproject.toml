@@ -3,6 +3,12 @@ destination = "vendored/"
 requirements = "vendor.txt"
 namespace = "typing_fun.vendored"
 
+[tool.vendoring.transformations]
+drop = [
+    "*.dist-info",
+    "*.egg-info",
+]
+
 [tool.vendoring.typing-stubs]
 six = ["six.__init__", "six.moves.__init__", "six.moves.configparser"]
 appdirs = []
