@@ -1,5 +1,4 @@
-"""Maintains state and output of the user interface.
-"""
+"""Maintains state and output of the user interface."""
 
 import traceback
 from contextlib import contextmanager
