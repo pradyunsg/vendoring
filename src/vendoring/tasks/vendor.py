@@ -1,5 +1,4 @@
-"""Logic for adding/vendoring the relevant libraries.
-"""
+"""Logic for adding/vendoring the relevant libraries."""
 
 import re
 from pathlib import Path

@@ -1,5 +1,4 @@
-"""Interactive mode, for updating all packages.
-"""
+"""Interactive mode, for updating all packages."""
 
 from __future__ import annotations
 

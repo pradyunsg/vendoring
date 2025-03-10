@@ -1,5 +1,4 @@
-"""Core logic of the sync task.
-"""
+"""Core logic of the sync task."""
 
 from vendoring.configuration import Configuration
 from vendoring.tasks.cleanup import cleanup_existing_vendored

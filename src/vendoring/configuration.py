@@ -1,5 +1,4 @@
-"""Loads configuration from pyproject.toml
-"""
+"""Loads configuration from pyproject.toml"""
 
 # mypy: allow-any-generics, allow-any-explicit
 
