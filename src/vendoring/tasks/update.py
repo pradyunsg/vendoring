@@ -1,5 +1,4 @@
-"""Logic for updating a vendoring-related requirements.txt file.
-"""
+"""Logic for updating a vendoring-related requirements.txt file."""
 
 import re
 from dataclasses import dataclass

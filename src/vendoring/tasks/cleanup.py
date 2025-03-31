@@ -1,5 +1,4 @@
-"""Logic for cleaning up already vendored files.
-"""
+"""Logic for cleaning up already vendored files."""
 
 from pathlib import Path
 from typing import Iterable, List
