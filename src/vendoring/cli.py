@@ -20,11 +20,19 @@ class _Template(NamedTuple):
     package: _Param
     # Options
     verbose: _Param
+    # ignore_space_change
+    ignore_space_change: _Param
 
 
 template = _Template(
     package=click.argument("package", default=None, required=False, type=str),
     verbose=click.option("-v", "--verbose", is_flag=True),
+    ignore_space_change=click.option(
+        "--ignore-space-change",
+        is_flag=True,
+        default=False,
+        help="Ignore spaces when applying patches",
+    ),
 )
 
 
@@ -35,7 +43,8 @@ def main() -> None:
 
 @main.command()
 @template.verbose
-def sync(verbose: bool) -> None:
+@template.ignore_space_change
+def sync(verbose: bool, ignore_space_change: bool) -> None:
     """Vendor libraries as described in lockfile"""
     UI.verbose = verbose
     project_path = Path()
@@ -45,7 +54,7 @@ def sync(verbose: bool) -> None:
     try:
         with UI.task("Load configuration"):
             config = load_configuration(project_path)
-        run_sync(config)
+        run_sync(config, ignore_space_change=ignore_space_change)
     except VendoringError as e:
         UI.show_error(e)
         sys.exit(1)

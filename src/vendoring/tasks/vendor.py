@@ -139,24 +139,33 @@ def detect_vendored_libs(destination: Path, files_to_skip: List[str]) -> List[st
     return retval
 
 
-def _apply_patch(patch_file_path: Path, working_directory: Path) -> None:
-    run(
-        ["git", "apply", "--verbose", str(patch_file_path)],
-        working_directory=working_directory,
-    )
+def _apply_patch(
+    patch_file_path: Path, working_directory: Path, ignore_space_change: bool = False
+) -> None:
+    command = ["git", "apply", "--verbose"]
+
+    if ignore_space_change:
+        command.append("--ignore-space-change")
+
+    command.append(str(patch_file_path))
+
+    run(command, working_directory=working_directory)
 
 
-def apply_patches(patch_dir: Path, working_directory: Path) -> None:
+def apply_patches(
+    patch_dir: Path, working_directory: Path, ignore_space_change: bool = False
+) -> None:
     for patch in patch_dir.glob("*.patch"):
-        _apply_patch(patch, working_directory)
+        _apply_patch(patch, working_directory, ignore_space_change)
 
 
-def vendor_libraries(config: Configuration) -> List[str]:
+def vendor_libraries(
+    config: Configuration, ignore_space_change: bool = False
+) -> List[str]:
     destination = config.destination
 
     # Download the relevant libraries.
     download_libraries(config.requirements, destination)
-
     # Generate an SBOM document for the requirements.
     if config.sbom_file:
         create_sbom_file(config.namespace, config.requirements, config.sbom_file)
@@ -169,7 +178,11 @@ def vendor_libraries(config: Configuration) -> List[str]:
 
     # Apply user provided patches.
     if config.patches_dir:
-        apply_patches(config.patches_dir, working_directory=config.base_directory)
+        apply_patches(
+            config.patches_dir,
+            working_directory=config.base_directory,
+            ignore_space_change=ignore_space_change,
+        )
 
     # Rewrite the imports we want changed.
     rewrite_imports(
