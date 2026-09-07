@@ -147,7 +147,7 @@ def _apply_patch(patch_file_path: Path, working_directory: Path) -> None:
 
 
 def apply_patches(patch_dir: Path, working_directory: Path) -> None:
-    for patch in patch_dir.glob("*.patch"):
+    for patch in sorted(patch_dir.glob("*.patch")):
         _apply_patch(patch, working_directory)
 
 
