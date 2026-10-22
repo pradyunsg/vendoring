@@ -38,18 +38,16 @@ Checklist:
 
 This codebase uses the following tools for enforcing a code convention:
 
-- [black] for code formatting
-- [isort] for import sorting
+- [ruff] for code formatting and import sorting
 - [mypy] for static type checking
 
-To ease workflows, [pre-commit] is used to simplify invocation and usage of
+To ease workflows, [prek] is used to simplify invocation and usage of
 these tools. To run all these tools on the codebase, run:
 
 ```sh-session
-pre-commit run --all-files
+prek run --all-files
 ```
 
-[black]: https://github.com/psf/black
-[isort]: https://github.com/timothycrosley/isort
+[ruff]: https://docs.astral.sh/ruff/
 [mypy]: https://github.com/python/mypy
-[pre-commit]: https://pre-commit.com/
+[prek]: https://prek.j178.dev/

@@ -12,14 +12,14 @@ nox.options.sessions = ["lint", "test"]
 
 @nox.session(python="3.11")
 def lint(session: nox.Session) -> None:
-    session.install("pre-commit")
+    session.install("prek")
 
     if session.posargs:
         args = session.posargs + ["--all-files"]
     else:
         args = ["--all-files", "--show-diff-on-failure"]
 
-    session.run("pre-commit", "run", *args)
+    session.run("prek", "run", *args)
 
 
 @nox.session(python=["3.11", "3.12", "3.13", "3.14", "3.15"])
