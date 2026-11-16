@@ -22,9 +22,7 @@ _PATTERN = r"""
     )
     (?P<suffix>.*)
 $
-""".replace(
-    "version regex here", VERSION_PATTERN
-)
+""".replace("version regex here", VERSION_PATTERN)
 
 _REGEX = re.compile(_PATTERN, re.VERBOSE | re.IGNORECASE)
 
